@@ -1,32 +1,25 @@
-using Entity;
-
-namespace FinurligaFinanserWebAPI.Tests
+namespace Entity.Tests
 {
     [TestFixture]
     public class UserAccountTests
-    {
-        private UserAccount _userAccount;
-
-        [SetUp]
-        public void Setup()
-        {            
-            _userAccount = new UserAccount("testuser", "Test", "User", "TestPassword123!");
-        }
+    {        
 
         [Test]
         public void TestUserAccountCreation()
         {
+            var userAccount = new UserAccount("testuser", "Test", "User", "TestPassword123!");
+
             Assert.Multiple(() =>
             {
                 // Verifiera att UserAccount-objektet har de förväntade värdena.
-                Assert.That(_userAccount.UserName, Is.EqualTo("testuser"));
-                Assert.That(_userAccount.FirstName, Is.EqualTo("Test"));
-                Assert.That(_userAccount.LastName, Is.EqualTo("User"));
+                Assert.That(userAccount.UserName, Is.EqualTo("testuser"));
+                Assert.That(userAccount.FirstName, Is.EqualTo("Test"));
+                Assert.That(userAccount.LastName, Is.EqualTo("User"));
             });
             Assert.Multiple(() =>
             {
-                Assert.That(_userAccount.PasswordSalt, Is.Not.Null);
-                Assert.That(_userAccount.PasswordHash, Is.Not.Null);
+                Assert.That(userAccount.PasswordSalt, Is.Not.Null);
+                Assert.That(userAccount.PasswordHash, Is.Not.Null);
             });
         }
 
@@ -36,7 +29,7 @@ namespace FinurligaFinanserWebAPI.Tests
         [TestCase("aaaaaaaB", false)] // Tillräckligt långt, liten bokstav, stor bokstav, men ingen siffra eller specialtecken.
         [TestCase("aaaaaaB1", false)] // Tillräckligt långt, liten bokstav, stor bokstav och siffra, men inget specialtecken.        
         [TestCase("AAAAAA1?", false)] // Tillräckligt långt, stor bokstav, siffra och specialtecken, men ingen liten bokstav.
-        
+
         public void TestPasswordIsValid(string password, bool isValid)
         {
             bool result = true;
@@ -91,7 +84,7 @@ namespace FinurligaFinanserWebAPI.Tests
         [TestCase("", false)] // tomt användarnamn bör inte vara giltigt
         [TestCase("aaaaa", false)] // för kort användarnamn (mindre än 6 tecken)
         [TestCase("abbbbb", true)] // giltigt användarnamn (minst 6 tecken)        
-        
+
         public void TestValidUserName(string userName, bool isValid)
         {
             // Act
@@ -120,7 +113,7 @@ namespace FinurligaFinanserWebAPI.Tests
         [TestCase("a8a", false)] // förnamnet innehåller en siffra, ej giltigt
         [TestCase("a!a", false)] // förnamnet innehåller ett specialtecken, ej giltigt
 
-        public void TestValidFirstName(string firstName, bool isValid) 
+        public void TestValidFirstName(string firstName, bool isValid)
         {
             // Act
             bool result = true;
@@ -130,7 +123,7 @@ namespace FinurligaFinanserWebAPI.Tests
             }
             catch (Exception)
             {
-                result= false;
+                result = false;
             }
 
             // Assert
