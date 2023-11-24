@@ -1,25 +1,32 @@
+using System.Runtime.CompilerServices;
+
 namespace Entity.Tests
 {
     [TestFixture]
-    public class UserAccountTests
-    {        
+    public class UserAccountTest
+    {
+        private UserAccount _userAccount;
+
+        [SetUp]
+        public void Setup()
+        {
+            _userAccount = new UserAccount("testuser", "Test", "User", "TestPassword123!");
+        }
 
         [Test]
         public void TestUserAccountCreation()
         {
-            var userAccount = new UserAccount("testuser", "Test", "User", "TestPassword123!");
-
             Assert.Multiple(() =>
             {
                 // Verifiera att UserAccount-objektet har de förväntade värdena.
-                Assert.That(userAccount.UserName, Is.EqualTo("testuser"));
-                Assert.That(userAccount.FirstName, Is.EqualTo("Test"));
-                Assert.That(userAccount.LastName, Is.EqualTo("User"));
+                Assert.That(_userAccount.UserName, Is.EqualTo("testuser"));
+                Assert.That(_userAccount.FirstName, Is.EqualTo("Test"));
+                Assert.That(_userAccount.LastName, Is.EqualTo("User"));
             });
             Assert.Multiple(() =>
             {
-                Assert.That(userAccount.PasswordSalt, Is.Not.Null);
-                Assert.That(userAccount.PasswordHash, Is.Not.Null);
+                Assert.That(_userAccount.PasswordSalt, Is.Not.Null);
+                Assert.That(_userAccount.PasswordHash, Is.Not.Null);
             });
         }
 
@@ -29,6 +36,7 @@ namespace Entity.Tests
         [TestCase("aaaaaaaB", false)] // Tillräckligt långt, liten bokstav, stor bokstav, men ingen siffra eller specialtecken.
         [TestCase("aaaaaaB1", false)] // Tillräckligt långt, liten bokstav, stor bokstav och siffra, men inget specialtecken.        
         [TestCase("AAAAAA1?", false)] // Tillräckligt långt, stor bokstav, siffra och specialtecken, men ingen liten bokstav.
+        [TestCase("AAAAAb1?", true)] // Uppfyller alla krav
 
         public void TestPasswordIsValid(string password, bool isValid)
         {
