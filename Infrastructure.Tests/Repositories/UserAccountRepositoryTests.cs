@@ -151,7 +151,21 @@ namespace Infrastructure.Tests.Repositories
             Assert.That(result, Is.EqualTo(validationStatus));
         }
 
+        [Test]
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(2)]
+        [TestCase(4)]
+        [TestCase(6)]
+        public async Task GetAllUserAccountsAsync_ShouldReturnListWithCorrectAmountOfUsers(int take)
+        {
+            int expectedCount = take > _userAccounts.Count ? _userAccounts.Count : 
+                                take < 0 ? 0 :take;
 
+            var useraccounts = await _sut.GetAllUserAccountsAsync(take);
+
+            Assert.That(useraccounts.Count, Is.EqualTo(expectedCount));
+        }
 
 
 

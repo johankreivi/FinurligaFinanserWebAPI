@@ -1,6 +1,7 @@
 ﻿using Entity;
 using Infrastructure.Enums;
 using Infrastructure.Helpers;
+using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
 namespace Infrastructure.Repositories
@@ -20,10 +21,10 @@ namespace Infrastructure.Repositories
             _dataContext = dataContext;
         }
 
-        public async Task<List<UserAccount>> GetAllUserAccountsAsync() 
+        public async Task<List<UserAccount>> GetAllUserAccountsAsync(int take = 10) 
         {
 
-            return new List<UserAccount>();
+            return await _dataContext.UserAccounts.Take(take).ToListAsync(); 
         }
 
         public async Task<UserValidationStatus> RegisterUser(string userName, string firstName, string lastName, string password)
