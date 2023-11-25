@@ -20,6 +20,12 @@ namespace Infrastructure.Repositories
             _dataContext = dataContext;
         }
 
+        public async Task<List<UserAccount>> GetAllUserAccountsAsync() 
+        {
+
+            return new List<UserAccount>();
+        }
+
         public async Task<UserValidationStatus> RegisterUser(string userName, string firstName, string lastName, string password)
         {
             var validationResult = (ValidateUser(userName, firstName, lastName, password));
@@ -37,7 +43,7 @@ namespace Infrastructure.Repositories
             return UserValidationStatus.Valid;
         }
 
-        public UserValidationStatus ValidateUser(string userName, string firstName, string lastName, string password)
+        private UserValidationStatus ValidateUser(string userName, string firstName, string lastName, string password)
         {
             var userNameResult = ValidateUserName(userName);
             if (userNameResult != UserValidationStatus.Valid) return userNameResult;
