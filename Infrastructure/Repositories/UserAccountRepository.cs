@@ -24,7 +24,7 @@ namespace Infrastructure.Repositories
         public async Task<List<UserAccount>> GetAllUserAccountsAsync(int take) 
         {
 
-            return await _dataContext.UserAccounts.Take(take).ToListAsync(); 
+            return await _dataContext.UserAccounts.Take(take).Include(x => x.BankAccounts).ToListAsync(); 
         }
 
         public async Task<UserValidationStatus> RegisterUser(string userName, string firstName, string lastName, string password)
