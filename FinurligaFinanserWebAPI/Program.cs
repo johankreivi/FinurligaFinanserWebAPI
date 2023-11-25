@@ -27,6 +27,7 @@ builder.Services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 
 builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
+builder.Services.AddScoped<ILogger, Logger<UserAccountRepository>>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
