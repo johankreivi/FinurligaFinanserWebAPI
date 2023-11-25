@@ -9,6 +9,11 @@ namespace Infrastructure
         {
         }
 
-        public DbSet<UserAccount> UserAccounts { get; set; }
+        public DataContext() // An empty constructor is required to be able to mock the datacontext while testing.
+        {
+            
+        }
+
+        public virtual DbSet<UserAccount> UserAccounts { get; set; }
     }
 }
