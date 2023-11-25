@@ -21,7 +21,7 @@ namespace Infrastructure.Repositories
             _dataContext = dataContext;
         }
 
-        public async Task<List<UserAccount>> GetAllUserAccountsAsync(int take = 10) 
+        public async Task<List<UserAccount>> GetAllUserAccountsAsync(int take) 
         {
 
             return await _dataContext.UserAccounts.Take(take).ToListAsync(); 
