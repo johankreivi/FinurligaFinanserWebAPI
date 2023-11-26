@@ -6,6 +6,7 @@ using FinurligaFinanserWebAPI.Controllers;
 using Moq.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using AutoMapper;
 
 namespace FinurligaFinanserWebAPI.Tests.Controllers
 {
@@ -15,6 +16,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
         
         private Mock<IUserAccountRepository> _mockRepository;
         private Mock<ILogger> _mockLogger;
+        private Mock<IMapper> _mockMapper;
 
         private UserAccountController _sut;
 
@@ -27,7 +29,9 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             _mockLogger = new Mock<ILogger>();
 
-            _sut = new UserAccountController( _mockRepository.Object, _mockLogger.Object);
+            _mockMapper = new Mock<IMapper>();
+
+            _sut = new UserAccountController( _mockRepository.Object, _mockLogger.Object, _mockMapper.Object);
         }
 
         [Test]
@@ -46,16 +50,19 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             Assert.That(result.Result, Is.InstanceOf(typeof(OkObjectResult)));
 
             var okResult = result.Result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.IsNotNull(okResult.Value);
+            Assert.That(okResult, Is.Not.Null);
+            Assert.That(okResult.Value, Is.Not.Null);
             Assert.That(okResult.Value, Is.InstanceOf(typeof(List<UserAccount>)));
 
             var resultValue = (List<UserAccount>)okResult.Value;
-            Assert.That(resultValue, Is.Not.Null);
-            Assert.That(userAccounts.Count, Is.EqualTo(resultValue.Count));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultValue, Is.Not.Null);
+                Assert.That(userAccounts, Has.Count.EqualTo(resultValue.Count));
+            });
         }
 
-        private List<UserAccount> SeedUserAccounts(int count)
+        private static List<UserAccount> SeedUserAccounts(int count)
         {
             var userAccounts = new List<UserAccount>();
 

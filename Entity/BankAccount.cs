@@ -19,7 +19,7 @@ namespace Entity
         [ForeignKey("UserAccount")]
         [Required]
         public int UserAccountId { get; private set; }
-        public List<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public List<Transaction>? Transactions { get; set; } = new List<Transaction>();
 
         public BankAccount(int accountNumber, string nameOfAccount, int userAccountId, decimal balance = 0)
         {

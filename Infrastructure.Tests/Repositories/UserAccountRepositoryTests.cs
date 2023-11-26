@@ -37,7 +37,7 @@ namespace Infrastructure.Tests.Repositories
                 // Verifiera att UserAccount-objektet har de förväntade värdena.
                 Assert.That(_userAccount.UserName, Is.EqualTo("testuser"));
                 Assert.That(_userAccount.FirstName, Is.EqualTo("Test"));
-                Assert.That(_userAccount.LastName, Is.EqualTo("User"));
+                Assert.That(_userAccount.LastName, Is.EqualTo("User"));                
             });
             Assert.Multiple(() =>
             {
@@ -164,7 +164,7 @@ namespace Infrastructure.Tests.Repositories
 
             var useraccounts = await _sut.GetAllUserAccountsAsync(take);
 
-            Assert.That(useraccounts.Count, Is.EqualTo(expectedCount));
+            Assert.That(useraccounts, Has.Count.EqualTo(expectedCount));
         }
 
 

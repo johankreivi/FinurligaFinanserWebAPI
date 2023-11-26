@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Entity;
 using FinurligaFinanserWebAPI.DtoModels;
+using Infrastructure.Helpers;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,20 +37,30 @@ namespace FinurligaFinanserWebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<UserAccountConfirmationDTO>> CreateUserAccount(CreateUserAccountDTO createUserAccountDTO)
+        [HttpPost("CreateUserAccount")]
+        public async Task<ActionResult<UserAccountConfirmationDTO>> CreateUserAccount(UserAccountDto userAccountDto)
         {
             _logger.LogInformation("Attempting to create a new user account.");
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
-                if (createUserAccountDTO == null)
+                if (userAccountDto == null)
                 {
-                    _logger.LogWarning("Received null CreateUserAccountDTO object.");
-                    return BadRequest("Provided CreateUserAccountDTO object cannot be null.");
+                    _logger.LogWarning("Received null UserAccountDTO object.");
+                    return BadRequest("Provided UserAccountDTO object cannot be null.");
                 }
 
-                var createdUserAccount = await _userAccountRepository.CreateUserAccount(createUserAccountDTO);
+                byte[] passwordSalt = PasswordHasher.GenerateSalt();
+                string passwordHash = PasswordHasher.HashPassword(userAccountDto.Password, passwordSalt);
+
+                var userAccount = new UserAccount ( userAccountDto.UserName, userAccountDto.FirstName, userAccountDto.LastName, passwordSalt, passwordHash );
+
+                var createdUserAccount = await _userAccountRepository.CreateUserAccount(userAccount);
 
                 if (createdUserAccount == null)
                 {

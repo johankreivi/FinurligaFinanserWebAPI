@@ -13,8 +13,8 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
     public class CreateUserAccountControllerTests
     {
         private UserAccount _userAccount;
-        private byte[] _passwordSalt;
-        private string _passwordHash;
+        private readonly byte[] _passwordSalt;
+        private readonly string _passwordHash;
 
         [SetUp]
         public void Setup()

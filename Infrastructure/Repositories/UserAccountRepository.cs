@@ -99,13 +99,8 @@ namespace Infrastructure.Repositories
             return UserValidationStatus.Valid;
         }
 
-        public async Task<UserAccount> CreateUserAccount(CreateUserAccountDTO dto)
+        public async Task<UserAccount> CreateUserAccount(UserAccount userAccount)
         {
-            byte[] salt = PasswordHasher.GenerateSalt();
-            string hash = PasswordHasher.HashPassword(dto.Password, salt);
-
-            var userAccount = new UserAccount(dto.UserName, dto.FirstName, dto.LastName, salt, hash);
-
             _dataContext.UserAccounts.Add(userAccount);
             await _dataContext.SaveChangesAsync();
 

@@ -7,11 +7,9 @@ namespace FinurligaFinanserWebAPI.Utilities
     public class MappingProfile : Profile
     {
         public MappingProfile()
-        {
-            CreateMap<CreateUserAccountDTO, UserAccount>();
+        {            
             CreateMap<UserAccount, UserAccountConfirmationDTO>()
-                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => "User account" +src.UserName+"successfully created."));
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => "User account " +src.UserName+" successfully created."));
         }
     }
 }
-
