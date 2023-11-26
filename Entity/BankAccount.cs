@@ -10,23 +10,24 @@ namespace Entity
 
         // AccountNumber genereras automatiskt av API:t och ska vara 10 siffror.
         [Range(1000000000, 2147483647)]
-        
+
         public int AccountNumber { get; private set; }
         public string NameOfAccount { get; private set; } = string.Empty;
         public decimal Balance { get; private set; }
-        
+
         // UserAccountId skickas med från FE. Det ska vara samma värde som Id från Username.
         [ForeignKey("UserAccount")]
         [Required]
         public int UserAccountId { get; private set; }
-        public virtual List<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public List<Transaction> Transactions { get; set; } = new List<Transaction>();
 
-        public BankAccount(int accountNumber, string nameOfAccount, int userAccountId, decimal balance=0)
+        public BankAccount(int accountNumber, string nameOfAccount, int userAccountId, decimal balance = 0)
         {
             AccountNumber = accountNumber;
-            NameOfAccount = nameOfAccount;            
+            NameOfAccount = nameOfAccount;
             UserAccountId = userAccountId;
             Balance = balance;
         }
     }
 }
+

@@ -10,10 +10,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entity", "Entity\Entity.csproj", "{AFCED1C8-BB78-4FA7-AB51-D58203620E86}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinurligaFinanserWebAPI.Tests", "FinurligaFinanserWebAPI.Tests\FinurligaFinanserWebAPI.Tests.csproj", "{EE3BF693-4134-45E7-B133-419A2CCB0F7D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7DA1ABFF-3CC9-4E48-8FDE-786D892F658F} = {7DA1ABFF-3CC9-4E48-8FDE-786D892F658F}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.Tests", "Infrastructure.Tests\Infrastructure.Tests.csproj", "{C7CE6B44-950B-48F9-8A76-76BBAD9DB936}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entity.Tests", "Entity.Tests\Entity.Tests.csproj", "{4297D2B4-9BA6-43D9-9902-E27560F5BAA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entity.Tests", "Entity.Tests\Entity.Tests.csproj", "{4297D2B4-9BA6-43D9-9902-E27560F5BAA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

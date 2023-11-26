@@ -34,7 +34,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Balance")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<string>("NameOfAccount")
                         .IsRequired()
@@ -47,7 +47,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserAccountId");
 
-                    b.ToTable("BankAccount");
+                    b.ToTable("BankAccounts");
                 });
 
             modelBuilder.Entity("Entity.Transaction", b =>
@@ -59,10 +59,8 @@ namespace Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("BankAccountId")
-                        .HasColumnType("int");
 
                     b.Property<int>("ReceivingAccountNumber")
                         .HasColumnType("int");
@@ -76,11 +74,14 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<int>("UserAccountId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("BankAccountId");
+                    b.HasIndex("UserAccountId");
 
-                    b.ToTable("Transaction");
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("Entity.UserAccount", b =>
@@ -132,7 +133,9 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Entity.BankAccount", null)
                         .WithMany("Transactions")
-                        .HasForeignKey("BankAccountId");
+                        .HasForeignKey("UserAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Entity.BankAccount", b =>

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace Entity
 {
@@ -13,8 +14,12 @@ namespace Entity
         [Range(1, double.MaxValue, ErrorMessage = "Transaktionen måste vara minst 1 kr.")]
         public decimal Amount { get; private set; }
         public DateTime TimeStamp { get; private set; }
+        [ForeignKey("UserAccount")]
+        [Required]
+        public int UserAccountId { get; private set; }
         [Required]
         public TransactionType Type { get; private set; }
+
 
         public Transaction(int receivingAccountNumber, int sendingAccountNumber, decimal amount, TransactionType type)
         {

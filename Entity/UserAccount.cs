@@ -25,7 +25,7 @@ namespace Entity
         public byte[] PasswordSalt { get; private set; }
 
         public string PasswordHash { get; private set; }
-        
+
         public List<BankAccount> BankAccounts { get; set; }
 
         // EF kräver en parameterlös konstruktör

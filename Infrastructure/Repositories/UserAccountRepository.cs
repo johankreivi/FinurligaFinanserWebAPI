@@ -2,7 +2,7 @@
 using Infrastructure.Enums;
 using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
+using System.Text.RegularExpressions; 
 
 namespace Infrastructure.Repositories
 {
@@ -25,6 +25,11 @@ namespace Infrastructure.Repositories
         {
 
             return await _dataContext.UserAccounts.Take(take).Include(x => x.BankAccounts).ToListAsync(); 
+        }
+
+        public async Task<UserAccount> GetOneUser(int id)
+        {
+            return await _dataContext.UserAccounts.FindAsync(id);
         }
 
         public async Task<UserValidationStatus> RegisterUser(string userName, string firstName, string lastName, string password)
@@ -93,5 +98,18 @@ namespace Infrastructure.Repositories
             
             return UserValidationStatus.Valid;
         }
+
+        public async Task<UserAccount> CreateUserAccount(CreateUserAccountDTO dto)
+        {
+            byte[] salt = PasswordHasher.GenerateSalt();
+            string hash = PasswordHasher.HashPassword(dto.Password, salt);
+
+            var userAccount = new UserAccount(dto.UserName, dto.FirstName, dto.LastName, salt, hash);
+
+            _dataContext.UserAccounts.Add(userAccount);
+            await _dataContext.SaveChangesAsync();
+
+            return userAccount;
+        }        
     }
 }

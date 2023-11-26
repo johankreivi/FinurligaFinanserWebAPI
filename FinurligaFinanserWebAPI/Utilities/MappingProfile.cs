@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Entity;
+using FinurligaFinanserWebAPI.DtoModels;
 
 namespace FinurligaFinanserWebAPI.Utilities
 {
@@ -6,7 +8,10 @@ namespace FinurligaFinanserWebAPI.Utilities
     {
         public MappingProfile()
         {
-            
+            CreateMap<CreateUserAccountDTO, UserAccount>();
+            CreateMap<UserAccount, UserAccountConfirmationDTO>()
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => "User account" +src.UserName+"successfully created."));
         }
     }
 }
+
