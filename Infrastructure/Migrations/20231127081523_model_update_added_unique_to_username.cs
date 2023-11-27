@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class model_update_added_unique_to_username : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,7 +29,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BankAccount",
+                name: "BankAccounts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -41,9 +41,9 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BankAccount", x => x.Id);
+                    table.PrimaryKey("PK_BankAccounts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BankAccount_UserAccounts_UserAccountId",
+                        name: "FK_BankAccounts_UserAccounts_UserAccountId",
                         column: x => x.UserAccountId,
                         principalTable: "UserAccounts",
                         principalColumn: "Id",
@@ -51,47 +51,54 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Transaction",
+                name: "Transactions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReceivingAccountNumber = table.Column<int>(type: "int", nullable: false),
                     SendingAccountNumber = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    BankAccountId = table.Column<int>(type: "int", nullable: true)
+                    UserAccountId = table.Column<int>(type: "int", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Transaction", x => x.Id);
+                    table.PrimaryKey("PK_Transactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Transaction_BankAccount_BankAccountId",
-                        column: x => x.BankAccountId,
-                        principalTable: "BankAccount",
-                        principalColumn: "Id");
+                        name: "FK_Transactions_BankAccounts_UserAccountId",
+                        column: x => x.UserAccountId,
+                        principalTable: "BankAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BankAccount_UserAccountId",
-                table: "BankAccount",
+                name: "IX_BankAccounts_UserAccountId",
+                table: "BankAccounts",
                 column: "UserAccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transaction_BankAccountId",
-                table: "Transaction",
-                column: "BankAccountId");
+                name: "IX_Transactions_UserAccountId",
+                table: "Transactions",
+                column: "UserAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserAccounts_UserName",
+                table: "UserAccounts",
+                column: "UserName",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Transaction");
+                name: "Transactions");
 
             migrationBuilder.DropTable(
-                name: "BankAccount");
+                name: "BankAccounts");
 
             migrationBuilder.DropTable(
                 name: "UserAccounts");

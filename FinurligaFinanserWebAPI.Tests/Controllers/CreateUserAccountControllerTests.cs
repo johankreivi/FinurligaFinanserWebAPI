@@ -70,5 +70,23 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
                 Assert.That(createdAtActionResult.StatusCode, Is.EqualTo(StatusCodes.Status201Created));
             });
         }
+
+        [Test]
+        public async Task CreateUserAccount_ShouldReturnBadRequest_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            _sut.ModelState.AddModelError("UserName", "Username is required"); 
+
+            // Act
+            var result = await _sut.CreateUserAccount(_userAccountDto);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            var actionResult = result.Result as BadRequestObjectResult; 
+            Assert.That(actionResult, Is.Not.Null);
+            Assert.That(actionResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+
+        }
+
     }
 }

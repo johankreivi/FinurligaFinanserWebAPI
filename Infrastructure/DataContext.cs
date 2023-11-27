@@ -23,6 +23,7 @@ namespace Infrastructure
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.UserName).IsRequired().HasMaxLength(50);
+                entity.HasIndex(e => e.UserName).IsUnique();
                 entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
                 entity.HasMany(u => u.BankAccounts).WithOne().HasForeignKey(ba => ba.UserAccountId);

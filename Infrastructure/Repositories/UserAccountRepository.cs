@@ -2,12 +2,14 @@
 using Infrastructure.Enums;
 using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions; 
 
 namespace Infrastructure.Repositories
 {
     public partial class UserAccountRepository : IUserAccountRepository
     {
+        private readonly ILogger _logger;
         private readonly DataContext _dataContext;
         private const int USERNAME_MIN_LENGTH = 6;
 
@@ -101,10 +103,31 @@ namespace Infrastructure.Repositories
 
         public async Task<UserAccount> CreateUserAccount(UserAccount userAccount)
         {
-            _dataContext.UserAccounts.Add(userAccount);
-            await _dataContext.SaveChangesAsync();
+            try
+            {
+                // Försök lägga till användarkontot i databasen
+                _dataContext.UserAccounts.Add(userAccount);
+                await _dataContext.SaveChangesAsync();
 
-            return userAccount;
-        }        
+                return userAccount;
+            }
+
+            catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
+                                               (sqlEx.Number == 2627 || sqlEx.Number == 2601))
+            {
+                // 2627 är SQL Server-felet för en unik nyckelkränkning (Unik index restriktion)
+                // 2601 är felet för en duplicerad nyckel
+                
+                _logger.LogError(ex, "Ett undantag inträffade när ett nytt användarkonto skulle skapas.");
+                                
+                throw new Exception("Användarnamnet finns redan. Välj ett annat namn.", ex);
+            }
+            catch (Exception ex)
+            {                
+                _logger.LogError(ex, "Ett oväntat undantag inträffade när ett nytt användarkonto skulle skapas.");
+                throw;
+            }
+        }
+
     }
 }
