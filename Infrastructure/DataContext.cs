@@ -9,7 +9,9 @@ namespace Infrastructure
         {
         }
 
-        public DbSet<UserAccount> UserAccounts { get; set; }
+        public DataContext() { }
+
+        public virtual DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<BankAccount> BankAccounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
 

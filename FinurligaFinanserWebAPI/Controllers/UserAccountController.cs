@@ -49,12 +49,6 @@ namespace FinurligaFinanserWebAPI.Controllers
 
             try
             {
-                if (userAccountDto == null)
-                {
-                    _logger.LogWarning("Received null UserAccountDTO object.");
-                    return BadRequest("Provided UserAccountDTO object cannot be null.");
-                }
-
                 byte[] passwordSalt = PasswordHasher.GenerateSalt();
                 string passwordHash = PasswordHasher.HashPassword(userAccountDto.Password, passwordSalt);
 
@@ -72,6 +66,7 @@ namespace FinurligaFinanserWebAPI.Controllers
 
                 return CreatedAtAction(nameof(GetOneUser), new { id = confirmationDTO.Id }, confirmationDTO);
             }
+
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while attempting to create a new user account.");

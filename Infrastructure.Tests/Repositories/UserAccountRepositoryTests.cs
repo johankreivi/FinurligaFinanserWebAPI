@@ -169,7 +169,7 @@ namespace Infrastructure.Tests.Repositories
 
 
 
-        private List<UserAccount> SeedUserAccounts()
+        private static List<UserAccount> SeedUserAccounts()
         {
             var userAccounts = new List<UserAccount>();
 
