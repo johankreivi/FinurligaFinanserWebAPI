@@ -4,6 +4,8 @@ using Infrastructure.Helpers;
 using Infrastructure.Enums;
 using Moq;
 using Moq.EntityFrameworkCore;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Tests.Repositories
 {
@@ -12,6 +14,7 @@ namespace Infrastructure.Tests.Repositories
     {
         private Mock<DataContext> _mockDataContext;
         private List<UserAccount> _userAccounts;
+        private Mock<ILogger<UserAccountRepository>> _logger;
 
         private UserAccountRepository _sut;
 
@@ -19,12 +22,11 @@ namespace Infrastructure.Tests.Repositories
         public void Setup()
         {
             _userAccounts = SeedUserAccounts();
-
+            _logger = new Mock<ILogger<UserAccountRepository>>();
             _mockDataContext = new Mock<DataContext>();
             _mockDataContext.Setup(x => x.UserAccounts).ReturnsDbSet(_userAccounts);
 
-            _sut = new UserAccountRepository(_mockDataContext.Object);
-            _sut = new UserAccountRepository(_mockDataContext.Object);
+            _sut = new UserAccountRepository(_mockDataContext.Object, _logger.Object);            
         }
 
         [Test]

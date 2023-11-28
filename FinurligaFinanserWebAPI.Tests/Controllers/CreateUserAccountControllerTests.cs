@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using static Infrastructure.Repositories.UserAccountRepository;
 
 namespace FinurligaFinanserWebAPI.Tests.Controllers
 {
@@ -88,5 +89,25 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
         }
 
+        [Test]
+        public async Task CreateUserAccount_ShouldReturnBadRequest_WhenUsernameAlreadyExists()
+        {
+            // Arrange
+            string expectedErrorMessage = "Användarnamnet är upptaget. Välj ett annat namn.";
+            _mockRepository.Setup(repo => repo.CreateUserAccount(It.IsAny<UserAccount>()))
+                .ThrowsAsync(new UserNameAlreadyExistsException(expectedErrorMessage));
+
+            // Act
+            var result = await _sut.CreateUserAccount(_userAccountDto);
+
+            // Assert
+            var badRequestResult = result.Result as BadRequestObjectResult;
+            Assert.That(badRequestResult, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(badRequestResult.Value, Is.EqualTo(expectedErrorMessage));
+                Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+            });
+        }
     }
 }

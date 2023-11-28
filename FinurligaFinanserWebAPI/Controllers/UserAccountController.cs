@@ -4,6 +4,7 @@ using FinurligaFinanserWebAPI.DtoModels;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using static Infrastructure.Repositories.UserAccountRepository;
 
 namespace FinurligaFinanserWebAPI.Controllers
 {
@@ -12,9 +13,9 @@ namespace FinurligaFinanserWebAPI.Controllers
     public class UserAccountController : ControllerBase
     {
         private readonly IUserAccountRepository _userAccountRepository;
-        private readonly ILogger _logger;
+        private readonly ILogger<UserAccountController> _logger;
         private readonly IMapper _mapper;
-        public UserAccountController(IUserAccountRepository userAccountRepository, ILogger logger, IMapper mapper)
+        public UserAccountController(IUserAccountRepository userAccountRepository, ILogger<UserAccountController> logger, IMapper mapper)
         {
             _logger = logger;
             _userAccountRepository = userAccountRepository;
@@ -42,10 +43,7 @@ namespace FinurligaFinanserWebAPI.Controllers
         {
             _logger.LogInformation("Attempting to create a new user account.");
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);            
 
             try
             {
@@ -67,6 +65,10 @@ namespace FinurligaFinanserWebAPI.Controllers
                 return CreatedAtAction(nameof(GetOneUser), new { id = confirmationDTO.Id }, confirmationDTO);
             }
 
+            catch (UserNameAlreadyExistsException uex)
+            {
+                return BadRequest(uex.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while attempting to create a new user account.");

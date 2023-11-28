@@ -18,9 +18,10 @@ namespace Infrastructure.Repositories
         [GeneratedRegex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d]).+$")]
         private static partial Regex PasswordIsValid();
 
-        public UserAccountRepository(DataContext dataContext)
+        public UserAccountRepository(DataContext dataContext, ILogger<UserAccountRepository> logger)
         {
             _dataContext = dataContext;
+            _logger = logger;
         }
 
         public async Task<List<UserAccount>> GetAllUserAccountsAsync(int take) 
@@ -101,33 +102,35 @@ namespace Infrastructure.Repositories
             return UserValidationStatus.Valid;
         }
 
+        public class UserNameAlreadyExistsException : Exception
+        {
+            public UserNameAlreadyExistsException(string message)
+                : base(message)
+            {
+            }
+        }
+
         public async Task<UserAccount> CreateUserAccount(UserAccount userAccount)
         {
             try
             {
-                // Försök lägga till användarkontot i databasen
                 _dataContext.UserAccounts.Add(userAccount);
-                await _dataContext.SaveChangesAsync();
+                await _dataContext.SaveChangesAsync();                
 
                 return userAccount;
             }
-
             catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
-                                               (sqlEx.Number == 2627 || sqlEx.Number == 2601))
-            {
-                // 2627 är SQL Server-felet för en unik nyckelkränkning (Unik index restriktion)
-                // 2601 är felet för en duplicerad nyckel
+                                               (sqlEx.Number == 2627 || sqlEx.Number == 2601))            {
                 
-                _logger.LogError(ex, "Ett undantag inträffade när ett nytt användarkonto skulle skapas.");
-                                
-                throw new Exception("Användarnamnet finns redan. Välj ett annat namn.", ex);
+                _logger.LogError(ex, "Ett undantag inträffade när ett nytt användarkonto skulle skapas på grund av duplicerat användarnamn.");
+
+                throw new UserNameAlreadyExistsException("Användarnamnet är upptaget. Välj ett annat namn.");
             }
             catch (Exception ex)
-            {                
+            {
                 _logger.LogError(ex, "Ett oväntat undantag inträffade när ett nytt användarkonto skulle skapas.");
                 throw;
             }
         }
-
     }
 }

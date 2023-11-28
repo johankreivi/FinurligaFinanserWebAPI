@@ -15,7 +15,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
         //private List<UserAccount> _userAccounts;
         
         private Mock<IUserAccountRepository> _mockRepository;
-        private Mock<ILogger> _mockLogger;
+        private Mock<ILogger<UserAccountController>> _mockLogger;
         private Mock<IMapper> _mockMapper;
 
         private UserAccountController _sut;
@@ -27,7 +27,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             _mockRepository = new Mock<IUserAccountRepository>();
 
-            _mockLogger = new Mock<ILogger>();
+            _mockLogger = new Mock<ILogger<UserAccountController>>();
 
             _mockMapper = new Mock<IMapper>();
 
