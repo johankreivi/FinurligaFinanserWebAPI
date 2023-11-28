@@ -2,45 +2,44 @@
 using Infrastructure.Repositories;
 using Infrastructure.Helpers;
 using Infrastructure.Enums;
+using Moq;
+using Moq.EntityFrameworkCore;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Tests.Repositories
 {
     [TestFixture]
     public class UserAccountRepositoryTests
     {
-        private UserAccount _userAccount;
+        private Mock<DataContext> _mockDataContext;
+        private List<UserAccount> _userAccounts;
+        private Mock<ILogger<UserAccountRepository>> _logger;
+
         private UserAccountRepository _sut;
-        private byte[] _salt = new byte[32];
-        private string _hash = "";
-        private readonly DataContext _context;
-
-        public UserAccountRepositoryTests(DataContext context)
-        {
-            _context = context;
-            _sut = new UserAccountRepository(_context);
-
-        }
-
-        public UserAccountRepositoryTests()
-        { }
 
         [SetUp]
         public void Setup()
         {
-            _sut = new UserAccountRepository(_context);
+            _userAccounts = SeedUserAccounts();
+            _logger = new Mock<ILogger<UserAccountRepository>>();
+            _mockDataContext = new Mock<DataContext>();
+            _mockDataContext.Setup(x => x.UserAccounts).ReturnsDbSet(_userAccounts);
+
+            _sut = new UserAccountRepository(_mockDataContext.Object, _logger.Object);            
         }
 
         [Test]
         public void TestUserAccountCreation()
         {
-            _userAccount = new UserAccount("testuser", "Test", "User", Array.Empty<byte>(), "");
+            var _userAccount = new UserAccount("testuser", "Test", "User", Array.Empty<byte>(), "");
 
             Assert.Multiple(() =>
             {
                 // Verifiera att UserAccount-objektet har de förväntade värdena.
                 Assert.That(_userAccount.UserName, Is.EqualTo("testuser"));
                 Assert.That(_userAccount.FirstName, Is.EqualTo("Test"));
-                Assert.That(_userAccount.LastName, Is.EqualTo("User"));
+                Assert.That(_userAccount.LastName, Is.EqualTo("User"));                
             });
             Assert.Multiple(() =>
             {
@@ -57,27 +56,14 @@ namespace Infrastructure.Tests.Repositories
         [TestCase("AAAAAA1?", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // Tillräckligt långt, stor bokstav, siffra och specialtecken, men ingen liten bokstav.
         [TestCase("AAAAAb1?", UserValidationStatus.Valid)] // Uppfyller alla krav
 
-        public void TestPasswordIsValid(string password, UserValidationStatus validationStatus)
+        public async Task TestPasswordIsValid(string password, UserValidationStatus validationStatus)
         {
             string validUserName = "validUName";
             string validFirstName = "validFName";
             string validLastName = "validLName";
-            var result = _sut.ValidateUser(validUserName, validFirstName, validLastName, password); // TODO: Should test RegisterUser but then Moq is required
+            var result = await _sut.RegisterUser(validUserName, validFirstName, validLastName, password);
 
             Assert.That(result, Is.EqualTo(validationStatus));
-            //bool result = true;
-            //try
-            //{
-            //    var userAccount = new UserAccount("userName", "Test", "User", _salt, _hash);
-            //}
-            //catch (Exception)
-            //{
-            //    // En exception antyder att skapandet inte är giltigt enligt våra [Required]-attribut
-            //    result = false;
-            //}
-
-            //// Assert
-            //Assert.That(result, Is.EqualTo(isValid));
         }
 
         [Test]
@@ -100,8 +86,8 @@ namespace Infrastructure.Tests.Repositories
         public void TestPasswordSaltCreation()
         {
             // Arrange
-            var userAccount1 = new UserAccount("testuser1", "Test", "User", PasswordHasher.GenerateSalt(), _hash);
-            var userAccount2 = new UserAccount("testuser2", "Test", "User", PasswordHasher.GenerateSalt(), _hash);
+            var userAccount1 = new UserAccount("testuser1", "Test", "User", PasswordHasher.GenerateSalt(), "");
+            var userAccount2 = new UserAccount("testuser2", "Test", "User", PasswordHasher.GenerateSalt(), "");
 
             // Act
             var salt1 = userAccount1.PasswordSalt;
@@ -117,29 +103,14 @@ namespace Infrastructure.Tests.Repositories
         [TestCase("aaaaa", UserValidationStatus.NotValid_UserNameLength_Too_Short)] // för kort användarnamn (mindre än 6 tecken)
         [TestCase("abbbbb", UserValidationStatus.Valid)] // giltigt användarnamn (minst 6 tecken)        
 
-        public void TestValidUserName(string userName, UserValidationStatus validationStatus)
+        public async Task TestValidUserName(string userName, UserValidationStatus validationStatus)
         {
             string validFirstName = "validFName";
             string validLastName = "validLName";
             string validPassword = "AAAAAb1?";
-            var result = _sut.ValidateUser(userName, validFirstName, validLastName, validPassword); // TODO: Should test RegisterUser but then Moq is required
+            var result = await _sut.RegisterUser(userName, validFirstName, validLastName, validPassword);
 
             Assert.That(result, Is.EqualTo(validationStatus));
-
-            //// Act
-            //bool result = true;
-            //try
-            //{
-            //    var userAccount = new UserAccount(userName, "Test", "User", _salt, _hash);
-            //}
-            //catch (Exception)
-            //{
-            //    // En exception antyder att skapandet inte är giltigt enligt våra [Required]-attribut
-            //    result = false;
-            //}
-
-            //// Assert
-            //Assert.That(result, Is.EqualTo(isValid));
         }
 
         [Test]
@@ -152,29 +123,14 @@ namespace Infrastructure.Tests.Repositories
         [TestCase("a8a", UserValidationStatus.NotValid_Name_Contains_Invalid_Characters)] // förnamnet innehåller en siffra, ej giltigt
         [TestCase("a!a", UserValidationStatus.NotValid_Name_Contains_Invalid_Characters)] // förnamnet innehåller ett specialtecken, ej giltigt
 
-        public void TestValidFirstName(string firstName, UserValidationStatus validationStatus)
+        public async Task TestValidFirstName(string firstName, UserValidationStatus validationStatus)
         {
             string validUserName = "validUName";
             string validLastName = "validLName";
             string validPassword = "AAAAAb1?";
-            var result = _sut.ValidateUser(validUserName, firstName, validLastName, validPassword); // TODO: Should test RegisterUser but then Moq is required
+            var result = await _sut.RegisterUser(validUserName, firstName, validLastName, validPassword);
 
             Assert.That(result, Is.EqualTo(validationStatus));
-
-            //// Act
-            //bool result = true;
-            //try
-            //{
-            //    var userAccount = new UserAccount("username", firstName, "User", _salt, _hash);
-            //}
-            //catch (Exception)
-            //{
-            //    result = false;
-            //}
-
-            //// Assert
-
-            //Assert.That(result, Is.EqualTo(isValid));
         }
 
         [Test]
@@ -187,28 +143,44 @@ namespace Infrastructure.Tests.Repositories
         [TestCase("a8a", UserValidationStatus.NotValid_Name_Contains_Invalid_Characters)] // efternamnet innehåller en siffra, ej giltigt
         [TestCase("a!a", UserValidationStatus.NotValid_Name_Contains_Invalid_Characters)] // efternamnet innehåller ett specialtecken, ej giltigt
 
-        public void TestValidLastName(string lastName, UserValidationStatus validationStatus)
+        public async Task TestValidLastName(string lastName, UserValidationStatus validationStatus)
         {
             string validUserName = "validUName";
             string validFirstName = "validFName";
             string validPassword = "AAAAAb1?";
-            var result = _sut.ValidateUser(validUserName, validFirstName, lastName, validPassword); // TODO: Should test RegisterUser but then Moq is required
+            var result = await _sut.RegisterUser(validUserName, validFirstName, lastName, validPassword); // TODO: Should test RegisterUser but then Moq is required
 
             Assert.That(result, Is.EqualTo(validationStatus));
-            //// Act
-            //bool result = true;
-            //try
-            //{
-            //    var userAccount = new UserAccount("username", "firstName", lastName, _salt, _hash);
-            //}
-            //catch (Exception)
-            //{
-            //    result = false;
-            //}
+        }
 
-            //// Assert
+        [Test]
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(2)]
+        [TestCase(4)]
+        [TestCase(6)]
+        public async Task GetAllUserAccountsAsync_ShouldReturnListWithCorrectAmountOfUsers(int take)
+        {
+            int expectedCount = take > _userAccounts.Count ? _userAccounts.Count : 
+                                take < 0 ? 0 :take;
 
-            //Assert.That(result, Is.EqualTo(isValid));
+            var useraccounts = await _sut.GetAllUserAccountsAsync(take);
+
+            Assert.That(useraccounts, Has.Count.EqualTo(expectedCount));
+        }
+
+
+
+        private static List<UserAccount> SeedUserAccounts()
+        {
+            var userAccounts = new List<UserAccount>();
+
+            for (int i = 0; i < 5; i++)
+            {
+                userAccounts.Add(new UserAccount($"UserAccount{i}", $"FirstName{i}", $"LastName{i}", new byte[32], $"hash{i}"));
+            }
+
+            return userAccounts;
         }
     }
 }
