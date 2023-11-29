@@ -9,21 +9,21 @@ namespace Entity
         [Required]
         [MinLength(6)]
         [StringLength(50)]
-        public string UserName { get; set; }
+        public string UserName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(50)]
         [MinLength(2)]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(50)]
         [MinLength(2)]
-        public string LastName { get; set; }        
-                
-        public byte[] PasswordSalt { get; private set; }
+        public string LastName { get; set; } = string.Empty;
 
-        public string PasswordHash { get; private set; }
+        public byte[] PasswordSalt { get; private set; } = new byte[8];
+
+        public string PasswordHash { get; private set; } = string.Empty;
 
         public List<BankAccount>? BankAccounts { get; set; }
 
