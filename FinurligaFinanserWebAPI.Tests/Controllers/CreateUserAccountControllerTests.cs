@@ -1,5 +1,4 @@
 ﻿using Entity;
-using FinurligaFinanserWebAPI.DtoModels;
 using FinurligaFinanserWebAPI.Controllers;
 using Infrastructure.Repositories;
 using Moq;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using static Infrastructure.Repositories.UserAccountRepository;
 using Infrastructure.Enums;
+using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
 
 namespace FinurligaFinanserWebAPI.Tests.Controllers
 {

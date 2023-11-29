@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using Entity;
-using FinurligaFinanserWebAPI.DtoModels;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Enums;
 using Microsoft.IdentityModel.Tokens;
 using static Infrastructure.Repositories.UserAccountRepository;
+using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
 
 namespace FinurligaFinanserWebAPI.Controllers
 {

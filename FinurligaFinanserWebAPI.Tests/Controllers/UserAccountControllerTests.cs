@@ -7,7 +7,7 @@ using Moq.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
-using FinurligaFinanserWebAPI.DtoModels;
+using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
 
 namespace FinurligaFinanserWebAPI.Tests.Controllers
 {
