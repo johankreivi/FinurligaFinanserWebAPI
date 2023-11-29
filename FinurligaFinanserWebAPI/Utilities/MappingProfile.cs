@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Entity;
 using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
-using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
 using Infrastructure.Helpers;
 
 namespace FinurligaFinanserWebAPI.Utilities

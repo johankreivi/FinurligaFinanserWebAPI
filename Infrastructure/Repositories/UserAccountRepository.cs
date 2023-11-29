@@ -1,10 +1,8 @@
 ﻿using Entity;
 using Infrastructure.Enums;
 using Infrastructure.Helpers;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.Design;
 using System.Text.RegularExpressions; 
 
 namespace Infrastructure.Repositories
@@ -32,24 +30,20 @@ namespace Infrastructure.Repositories
             return await _dataContext.UserAccounts.Take(take).Include(x => x.BankAccounts).ToListAsync(); 
         }
 
-        public async Task<UserAccount> GetOneUser(int id) => await _dataContext.UserAccounts.FindAsync(id);
+        public async Task<UserAccount?> GetOneUser(int id) => await _dataContext.UserAccounts.FindAsync(id);
 
-        public async Task<UserValidationStatus> RegisterUser(string userName, string firstName, string lastName, string password)
-        {
-            //var validationResult = ValidateUser(new UserAccount());
-            //if (validationResult != UserValidationStatus.Valid)
-            //    return validationResult;
+        //public async Task<UserValidationStatus> RegisterUser(string userName, string firstName, string lastName, string password)
+        //{
+        //    var passwordSalt = PasswordHasher.GenerateSalt();
+        //    var passwordHash = PasswordHasher.HashPassword(password, passwordSalt);
 
-            var passwordSalt = PasswordHasher.GenerateSalt();
-            var passwordHash = PasswordHasher.HashPassword(password, passwordSalt);
+        //    UserAccount userAccount = new(userName, firstName, lastName, passwordSalt, passwordHash);
 
-            UserAccount userAccount = new(userName, firstName, lastName, passwordSalt, passwordHash);
+        //    await _dataContext.UserAccounts.AddAsync(userAccount);
+        //    await _dataContext.SaveChangesAsync();
 
-            await _dataContext.UserAccounts.AddAsync(userAccount);
-            await _dataContext.SaveChangesAsync();
-
-            return UserValidationStatus.Valid;
-        }
+        //    return UserValidationStatus.Valid;
+        //}
 
         private UserValidationStatus ValidateUser(UserAccount userAccount, string password)
         {
@@ -120,6 +114,11 @@ namespace Infrastructure.Repositories
 
                 var validationStatus = ValidateUser(userAccount, password);
 
+                if(_dataContext.UserAccounts.Any(x => x.UserName == userAccount.UserName))
+                {
+                    return (userAccount, UserValidationStatus.NotValid_UserName_Already_Taken);
+                }
+
                 if (validationStatus == UserValidationStatus.Valid)
                 {
                     _dataContext.UserAccounts.Add(userAccount);
@@ -128,6 +127,12 @@ namespace Infrastructure.Repositories
 
                 return (userAccount, validationStatus);
             }
+
+            // SqlException-nummer 2627 och 2601 representerar specifika fel i SQL Server:
+            // 2627: Violation of PRIMARY KEY constraint - försök att infoga en duplicerad nyckel.
+            // 2601: Cannot insert duplicate key row in object - försök att infoga en rad som bryter mot en unik begränsning eller index.
+            // Dessa felkoder indikerar att ett försök har gjorts att skapa ett användarkonto med ett användarnamn som redan finns.
+
             catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
                                                (sqlEx.Number == 2627 || sqlEx.Number == 2601))            {
                 
@@ -154,30 +159,13 @@ namespace Infrastructure.Repositories
                 }
                                     
                 var hashedPassword = PasswordHasher.HashPassword(password, userInDb.PasswordSalt);
-                if (hashedPassword == userInDb.PasswordHash)
-                {
-                    return true; 
-                }
 
-                return false;
+                return hashedPassword == userInDb.PasswordHash;
             }
             catch (Exception ex)
-            {
-                // Hantering av undantag
+            {                
                 throw new Exception("An error occurred while processing your request.", ex);
             }
-        }
-
-
-        //public async Task<byte[]?> GetUserSalt(string userName)
-        //{
-        //    var fetchedUserAccount = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.UserName.Equals(userName));
-        //    if (fetchedUserAccount is not null)
-        //    {
-        //        return fetchedUserAccount.PasswordSalt;
-        //    }
-
-        //    else return null;
-        //}
+        }        
     }
 }

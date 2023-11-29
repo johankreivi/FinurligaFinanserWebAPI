@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using Entity;
-using Infrastructure.Helpers;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Enums;
-using Microsoft.IdentityModel.Tokens;
 using static Infrastructure.Repositories.UserAccountRepository;
 using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
 
@@ -45,6 +43,7 @@ namespace FinurligaFinanserWebAPI.Controllers
         {
             _logger.LogInformation("Attempting to create a new user account.");
 
+            // Kontrollerar att inskickat objekt är i valid state.
             if (!ModelState.IsValid) return BadRequest(ModelState);            
 
             try
@@ -79,14 +78,12 @@ namespace FinurligaFinanserWebAPI.Controllers
 
         [HttpPost("Login")]
         public async Task<ActionResult<LoginUserConfirmationDTO>> Login(LoginUserDTO loginUser)
-        {
-            // Kontrollera om användarnamn och lösenord är angivna
+        {            
             if (string.IsNullOrEmpty(loginUser.UserName) || string.IsNullOrEmpty(loginUser.Password))
             {
                 return BadRequest("Username or password cannot be null or empty");
             }
-
-            // Försök att verifiera användaren
+                        
             var isLoginSuccess = await _userAccountRepository.AuthorizeUserLogin(loginUser.UserName, loginUser.Password);
 
             var result = new LoginUserConfirmationDTO { UserName = loginUser.UserName, IsAuthorized = isLoginSuccess};
@@ -96,23 +93,9 @@ namespace FinurligaFinanserWebAPI.Controllers
                 result.Message = $"User {loginUser.UserName}, access granted!";
                 return Ok(result);
             }
-
-            // Om isLoginSuccess är false, är antingen användarnamnet felaktigt eller lösenordet stämmer inte
+                        
             result.Message = "Invalid username or password";
             return Unauthorized(result);
-        }
-
-        //[HttpGet("GetSalt")]
-        //public async Task<ActionResult<byte[]>> GetUserSalt(string userName)
-        //{
-        //    var userByte = await _userAccountRepository.GetUserSalt(userName);
-
-        //    if (userByte is null)
-        //    {
-        //        return BadRequest("Unexpected error when getting salt");
-        //    }
-
-        //    return Ok(userByte);
-        //}
+        }        
     }
 }

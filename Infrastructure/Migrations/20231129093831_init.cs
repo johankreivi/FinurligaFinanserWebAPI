@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class model_update_added_unique_to_username : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -60,15 +60,16 @@ namespace Infrastructure.Migrations
                     SendingAccountNumber = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserAccountId = table.Column<int>(type: "int", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false)
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    BankAccountId = table.Column<int>(type: "int", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Transactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Transactions_BankAccounts_UserAccountId",
-                        column: x => x.UserAccountId,
+                        name: "FK_Transactions_BankAccounts_BankAccountId",
+                        column: x => x.BankAccountId,
                         principalTable: "BankAccounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -80,9 +81,9 @@ namespace Infrastructure.Migrations
                 column: "UserAccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_UserAccountId",
+                name: "IX_Transactions_BankAccountId",
                 table: "Transactions",
-                column: "UserAccountId");
+                column: "BankAccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserAccounts_UserName",

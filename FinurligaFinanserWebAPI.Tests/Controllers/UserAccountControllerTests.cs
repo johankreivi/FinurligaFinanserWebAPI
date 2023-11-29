@@ -1,9 +1,7 @@
 ﻿using Entity;
 using Infrastructure.Repositories;
-using Infrastructure;
 using Moq;
 using FinurligaFinanserWebAPI.Controllers;
-using Moq.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
@@ -80,11 +78,11 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
         {
             var testLoginUser = new LoginUserDTO()
             {
-                UserName = null,
+                UserName = "",
                 Password = "Password1!"
             };
             var result = await _sut.Login(testLoginUser);
-            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+            Assert.That(result.Result, Is.InstanceOf(typeof(BadRequestObjectResult)));
         }
 
         [Test]        
@@ -93,10 +91,10 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             var testLoginUser = new LoginUserDTO()
             {
                 UserName = "testUser",
-                Password = null
+                Password = ""
             };
             var result = await _sut.Login(testLoginUser);
-            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+            Assert.That(result.Result, Is.InstanceOf(typeof(BadRequestObjectResult)));
         }        
     }
 }

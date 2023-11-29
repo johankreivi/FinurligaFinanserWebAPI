@@ -20,8 +20,7 @@ namespace Entity
         [StringLength(50)]
         [MinLength(2)]
         public string LastName { get; set; }        
-
-        // Här sparar vi Saltet till databasen, det kommer behövas vid inloggning ihop med userName och password.
+                
         public byte[] PasswordSalt { get; private set; }
 
         public string PasswordHash { get; private set; }

@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories
     {
         Task<List<UserAccount>> GetAllUserAccountsAsync(int take);
         Task<(UserAccount, UserValidationStatus)> CreateUserAccount(string userName, string firstName, string lastName, string password);
-        Task<UserAccount> GetOneUser(int id);
+        Task<UserAccount?> GetOneUser(int id);
         Task<bool> AuthorizeUserLogin(string userName, string password);        
     }    
 }

@@ -56,14 +56,14 @@ namespace Infrastructure.Tests.Repositories
         [TestCase("AAAAAA1?", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // Tillräckligt långt, stor bokstav, siffra och specialtecken, men ingen liten bokstav.
         [TestCase("AAAAAb1?", UserValidationStatus.Valid)] // Uppfyller alla krav
 
-        public async Task TestPasswordIsValid(string password, UserValidationStatus validationStatus)
+        public async Task TestPasswordIsValid(string password, UserValidationStatus expectedValidationStatus)
         {
             string validUserName = "validUName";
             string validFirstName = "validFName";
             string validLastName = "validLName";
-            var result = await _sut.RegisterUser(validUserName, validFirstName, validLastName, password);
+            var result = await _sut.CreateUserAccount(validUserName, validFirstName, validLastName, password);
 
-            Assert.That(result, Is.EqualTo(validationStatus));
+            Assert.That(result.Item2, Is.EqualTo(expectedValidationStatus));
         }
 
         [Test]
@@ -103,14 +103,14 @@ namespace Infrastructure.Tests.Repositories
         [TestCase("aaaaa", UserValidationStatus.NotValid_UserNameLength_Too_Short)] // för kort användarnamn (mindre än 6 tecken)
         [TestCase("abbbbb", UserValidationStatus.Valid)] // giltigt användarnamn (minst 6 tecken)        
 
-        public async Task TestValidUserName(string userName, UserValidationStatus validationStatus)
+        public async Task TestValidUserName(string userName, UserValidationStatus expectedValidationStatus)
         {
             string validFirstName = "validFName";
             string validLastName = "validLName";
             string validPassword = "AAAAAb1?";
-            var result = await _sut.RegisterUser(userName, validFirstName, validLastName, validPassword);
+            var result = await _sut.CreateUserAccount(userName, validFirstName, validLastName, validPassword);
 
-            Assert.That(result, Is.EqualTo(validationStatus));
+            Assert.That(result.Item2, Is.EqualTo(expectedValidationStatus));
         }
 
         [Test]
@@ -123,14 +123,15 @@ namespace Infrastructure.Tests.Repositories
         [TestCase("a8a", UserValidationStatus.NotValid_Name_Contains_Invalid_Characters)] // förnamnet innehåller en siffra, ej giltigt
         [TestCase("a!a", UserValidationStatus.NotValid_Name_Contains_Invalid_Characters)] // förnamnet innehåller ett specialtecken, ej giltigt
 
-        public async Task TestValidFirstName(string firstName, UserValidationStatus validationStatus)
+        public async Task TestValidFirstName(string firstName, UserValidationStatus expectedValidationStatus)
         {
             string validUserName = "validUName";
             string validLastName = "validLName";
             string validPassword = "AAAAAb1?";
-            var result = await _sut.RegisterUser(validUserName, firstName, validLastName, validPassword);
 
-            Assert.That(result, Is.EqualTo(validationStatus));
+            var result = await _sut.CreateUserAccount(validUserName, firstName, validLastName, validPassword);
+
+            Assert.That(result.Item2, Is.EqualTo(expectedValidationStatus));
         }
 
         [Test]
@@ -143,14 +144,14 @@ namespace Infrastructure.Tests.Repositories
         [TestCase("a8a", UserValidationStatus.NotValid_Name_Contains_Invalid_Characters)] // efternamnet innehåller en siffra, ej giltigt
         [TestCase("a!a", UserValidationStatus.NotValid_Name_Contains_Invalid_Characters)] // efternamnet innehåller ett specialtecken, ej giltigt
 
-        public async Task TestValidLastName(string lastName, UserValidationStatus validationStatus)
+        public async Task TestValidLastName(string lastName, UserValidationStatus expectedValidationStatus)
         {
             string validUserName = "validUName";
             string validFirstName = "validFName";
             string validPassword = "AAAAAb1?";
-            var result = await _sut.RegisterUser(validUserName, validFirstName, lastName, validPassword); // TODO: Should test RegisterUser but then Moq is required
+            var result = await _sut.CreateUserAccount(validUserName, validFirstName, lastName, validPassword); // TODO: Should test RegisterUser but then Moq is required
 
-            Assert.That(result, Is.EqualTo(validationStatus));
+            Assert.That(result.Item2, Is.EqualTo(expectedValidationStatus));
         }
 
         [Test]
