@@ -32,19 +32,6 @@ namespace Infrastructure.Repositories
 
         public async Task<UserAccount?> GetOneUser(int id) => await _dataContext.UserAccounts.FindAsync(id);
 
-        //public async Task<UserValidationStatus> RegisterUser(string userName, string firstName, string lastName, string password)
-        //{
-        //    var passwordSalt = PasswordHasher.GenerateSalt();
-        //    var passwordHash = PasswordHasher.HashPassword(password, passwordSalt);
-
-        //    UserAccount userAccount = new(userName, firstName, lastName, passwordSalt, passwordHash);
-
-        //    await _dataContext.UserAccounts.AddAsync(userAccount);
-        //    await _dataContext.SaveChangesAsync();
-
-        //    return UserValidationStatus.Valid;
-        //}
-
         private UserValidationStatus ValidateUser(UserAccount userAccount, string password)
         {
             var userNameResult = ValidateUserName(userAccount.UserName);

@@ -61,6 +61,37 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             });
         }
 
+        [Test]
+        [TestCase("", "ValidPassword1!", typeof(BadRequestObjectResult))]
+        [TestCase(null, "ValidPassword1!", typeof(BadRequestObjectResult))]
+        [TestCase("ValidUsername", "", typeof(BadRequestObjectResult))]
+        [TestCase("ValidUsername", null, typeof(BadRequestObjectResult))]
+        public async Task Login_UserNameOrPasswordIsNullOrEmpty_ReturnBadRequest(string userName, string password, Type expectedType)
+        {
+            var testLoginUser = new LoginUserDTO()
+            {
+                UserName = userName,
+                Password = password
+            };
+
+            var result = await _sut.Login(testLoginUser);
+            Assert.That(result.Result, Is.InstanceOf(expectedType));
+        }
+
+        [Test]
+        [TestCase("ValidUsername", "ValidPassword1!", typeof(OkObjectResult), true)]
+        [TestCase("ValidUsername", "ValidPassword1!", typeof(UnauthorizedObjectResult), false)]
+        public async Task Login_GetsAuthorized_ReturnOk_Else_ReturnUnauthorized(string userName, string password, Type exepectedType, bool isAuthorized) 
+        {
+            _mockRepository.Setup(x => x.AuthorizeUserLogin(userName, password)).ReturnsAsync(isAuthorized);
+
+            LoginUserDTO loginDto = new() { UserName = userName, Password = password };
+
+            var result = await _sut.Login(loginDto);
+
+            Assert.That(result.Result, Is.InstanceOf(exepectedType));
+        }
+
         private static List<UserAccount> SeedUserAccounts(int count)
         {
             var userAccounts = new List<UserAccount>();
@@ -72,29 +103,5 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             return userAccounts;
         }
-
-        [Test]
-        public async Task Login_UserName_Is_Null_Or_Empty_Return_Bad_Request()
-        {
-            var testLoginUser = new LoginUserDTO()
-            {
-                UserName = "",
-                Password = "Password1!"
-            };
-            var result = await _sut.Login(testLoginUser);
-            Assert.That(result.Result, Is.InstanceOf(typeof(BadRequestObjectResult)));
-        }
-
-        [Test]        
-        public async Task Login_Password_Is_Null_Or_Empty_Return_Bad_Request()
-        {
-            var testLoginUser = new LoginUserDTO()
-            {
-                UserName = "testUser",
-                Password = ""
-            };
-            var result = await _sut.Login(testLoginUser);
-            Assert.That(result.Result, Is.InstanceOf(typeof(BadRequestObjectResult)));
-        }        
     }
 }

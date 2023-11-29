@@ -170,7 +170,48 @@ namespace Infrastructure.Tests.Repositories
             Assert.That(useraccounts, Has.Count.EqualTo(expectedCount));
         }
 
+        [Test]
+        [TestCase(-1, true)]
+        [TestCase(0, false)]
+        public async Task GetOneUser_IfUserExist_ReturnUser_Else_ReturnNull(int id, bool isNullExpected)
+        {
+            _mockDataContext.Setup(x => x.UserAccounts.FindAsync(id)).ReturnsAsync(_userAccounts.Find(x => x.Id == id));
+            
+            var result = await _sut.GetOneUser(id);
 
+            Assert.That(result is null, Is.EqualTo(isNullExpected));
+            if(!isNullExpected)
+            {
+                Assert.That(result, Is.InstanceOf(typeof(UserAccount)));
+            }
+        }
+
+        [Test]
+        [TestCase("notExistingUsername", "ValidPassword1!")]
+        public async Task AuthorizeUserLogin_UserDoesNotExist_ReturnFalse(string userName, string password)
+        {
+            var result = await _sut.AuthorizeUserLogin(userName, password);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        [TestCase("UserAccount0", "notMatchingPassword")]
+        public async Task AuthorizeUserLogin_UserExistButPasswordDoesNotMatch_ReturnFalse(string userName, string password)
+        {
+            var result = await _sut.AuthorizeUserLogin(userName, password);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        [TestCase("UserAccount0", "Password0!")]
+        public async Task AuthorizeUserLogin_UserExistAndPasswordMatch_ReturnTrue(string userName, string password)
+        {
+            var result = await _sut.AuthorizeUserLogin(userName, password);
+
+            Assert.That(result, Is.True);
+        }
 
         private static List<UserAccount> SeedUserAccounts()
         {
@@ -178,7 +219,11 @@ namespace Infrastructure.Tests.Repositories
 
             for (int i = 0; i < 5; i++)
             {
-                userAccounts.Add(new UserAccount($"UserAccount{i}", $"FirstName{i}", $"LastName{i}", new byte[32], $"hash{i}"));
+                var salt = PasswordHasher.GenerateSalt();
+                var hash = PasswordHasher.HashPassword($"Password{i}!", salt);
+                userAccounts.Add(new UserAccount($"UserAccount{i}", $"FirstName{i}", $"LastName{i}", salt, hash) 
+                            { Id = i});
+
             }
 
             return userAccounts;
