@@ -8,13 +8,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using static Infrastructure.Repositories.UserAccountRepository;
+using Infrastructure.Enums;
 
 namespace FinurligaFinanserWebAPI.Tests.Controllers
 {
     [TestFixture]
     public class CreateUserAccountControllerTests
     {
-        private UserAccountDto _userAccountDto;                
+        private UserAccountDTO _userAccountDto;                
 
         private Mock<IUserAccountRepository> _mockRepository;
         private Mock<ILogger<UserAccountController>> _mockLogger;
@@ -31,7 +32,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             _sut = new UserAccountController(_mockRepository.Object, _mockLogger.Object, _mockMapper.Object);
 
-            _userAccountDto = new UserAccountDto
+            _userAccountDto = new UserAccountDTO
             {
                 UserName = "HasseAro",
                 FirstName = "Hasse",
@@ -47,8 +48,8 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             var userAccount = new UserAccount("HasseAro", "Hasse", "Aro", Array.Empty<byte>(), "");
             var confirmationDto = new UserAccountConfirmationDTO { Id = 1, UserName = "HasseAro", Message = "Account created" };
 
-            _mockRepository.Setup(repo => repo.CreateUserAccount(It.IsAny<UserAccount>()))
-                .ReturnsAsync(userAccount);
+            _mockRepository.Setup(repo => repo.CreateUserAccount(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((userAccount, UserValidationStatus.Valid));
 
             _mockMapper.Setup(mapper => mapper.Map<UserAccountConfirmationDTO>(It.IsAny<UserAccount>()))
                 .Returns(confirmationDto);
@@ -94,7 +95,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
         {
             // Arrange
             string expectedErrorMessage = "Användarnamnet är upptaget. Välj ett annat namn.";
-            _mockRepository.Setup(repo => repo.CreateUserAccount(It.IsAny<UserAccount>()))
+            _mockRepository.Setup(repo => repo.CreateUserAccount(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .ThrowsAsync(new UserNameAlreadyExistsException(expectedErrorMessage));
 
             // Act

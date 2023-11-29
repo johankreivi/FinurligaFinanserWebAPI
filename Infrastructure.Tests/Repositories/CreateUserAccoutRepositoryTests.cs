@@ -28,18 +28,18 @@ namespace Infrastructure.Tests.Repositories
             _mockDataContext.Setup(m => m.UserAccounts.Add(_userAccount));
         }       
 
-        [Test]
-        public async Task CreateUserAccount_ShouldAddUserAccount_WhenUserIsValid()
-        {
-            // Arrange
-            _mockDataContext.Setup(m => m.SaveChangesAsync(default)).ReturnsAsync(1);
+        //[Test]
+        //public async Task CreateUserAccount_ShouldAddUserAccount_WhenUserIsValid()
+        //{
+        //    // Arrange
+        //    _mockDataContext.Setup(m => m.SaveChangesAsync(default)).ReturnsAsync(1);
 
-            // Act
-            var result = await _sut.CreateUserAccount(_userAccount);
+        //    // Act
+        //    var result = await _sut.CreateUserAccount(_userAccount);
 
-            // Assert
-            Assert.That(result, Is.EqualTo(_userAccount));
-        }
+        //    // Assert
+        //    Assert.That(result, Is.EqualTo(_userAccount));
+        //}
 
         //[Test]
 

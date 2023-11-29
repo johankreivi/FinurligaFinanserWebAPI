@@ -1,8 +1,10 @@
 ﻿using Entity;
 using Infrastructure.Enums;
 using Infrastructure.Helpers;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.Design;
 using System.Text.RegularExpressions; 
 
 namespace Infrastructure.Repositories
@@ -30,37 +32,34 @@ namespace Infrastructure.Repositories
             return await _dataContext.UserAccounts.Take(take).Include(x => x.BankAccounts).ToListAsync(); 
         }
 
-        public async Task<UserAccount> GetOneUser(int id)
-        {
-            return await _dataContext.UserAccounts.FindAsync(id);
-        }
+        public async Task<UserAccount> GetOneUser(int id) => await _dataContext.UserAccounts.FindAsync(id);
 
         public async Task<UserValidationStatus> RegisterUser(string userName, string firstName, string lastName, string password)
         {
-            var validationResult = (ValidateUser(userName, firstName, lastName, password));
-            if (validationResult != UserValidationStatus.Valid)
-                return validationResult;
+            //var validationResult = ValidateUser(new UserAccount());
+            //if (validationResult != UserValidationStatus.Valid)
+            //    return validationResult;
 
             var passwordSalt = PasswordHasher.GenerateSalt();
             var passwordHash = PasswordHasher.HashPassword(password, passwordSalt);
 
             UserAccount userAccount = new(userName, firstName, lastName, passwordSalt, passwordHash);
-            
+
             await _dataContext.UserAccounts.AddAsync(userAccount);
             await _dataContext.SaveChangesAsync();
 
             return UserValidationStatus.Valid;
         }
 
-        private UserValidationStatus ValidateUser(string userName, string firstName, string lastName, string password)
+        private UserValidationStatus ValidateUser(UserAccount userAccount, string password)
         {
-            var userNameResult = ValidateUserName(userName);
+            var userNameResult = ValidateUserName(userAccount.UserName);
             if (userNameResult != UserValidationStatus.Valid) return userNameResult;
 
-            var firstNameResult = ValidateName(firstName);
+            var firstNameResult = ValidateName(userAccount.FirstName);
             if (firstNameResult != UserValidationStatus.Valid) return firstNameResult;
 
-            var lastNameResult = ValidateName(lastName);
+            var lastNameResult = ValidateName(userAccount.LastName);
             if (lastNameResult != UserValidationStatus.Valid) return lastNameResult;
 
             var passwordResult = ValidatePassword(password);
@@ -110,14 +109,24 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<UserAccount> CreateUserAccount(UserAccount userAccount)
+        public async Task<(UserAccount, UserValidationStatus)> CreateUserAccount(string userName, string firstName, string lastName, string password)
         {
             try
             {
-                _dataContext.UserAccounts.Add(userAccount);
-                await _dataContext.SaveChangesAsync();                
+                byte[] passwordSalt = PasswordHasher.GenerateSalt();
+                string passwordHash = PasswordHasher.HashPassword(password, passwordSalt);
 
-                return userAccount;
+                var userAccount = new UserAccount(userName, firstName, lastName, passwordSalt, passwordHash);
+
+                var validationStatus = ValidateUser(userAccount, password);
+
+                if (validationStatus == UserValidationStatus.Valid)
+                {
+                    _dataContext.UserAccounts.Add(userAccount);
+                    await _dataContext.SaveChangesAsync();
+                }
+
+                return (userAccount, validationStatus);
             }
             catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
                                                (sqlEx.Number == 2627 || sqlEx.Number == 2601))            {
@@ -132,5 +141,43 @@ namespace Infrastructure.Repositories
                 throw;
             }
         }
+
+        public async Task<bool> AuthorizeUserLogin(string userName, string password)
+        {
+            try
+            {
+                var userInDb = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.UserName == userName);
+
+                if(userInDb == null)
+                {
+                    return false;
+                }
+                                    
+                var hashedPassword = PasswordHasher.HashPassword(password, userInDb.PasswordSalt);
+                if (hashedPassword == userInDb.PasswordHash)
+                {
+                    return true; 
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // Hantering av undantag
+                throw new Exception("An error occurred while processing your request.", ex);
+            }
+        }
+
+
+        //public async Task<byte[]?> GetUserSalt(string userName)
+        //{
+        //    var fetchedUserAccount = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.UserName.Equals(userName));
+        //    if (fetchedUserAccount is not null)
+        //    {
+        //        return fetchedUserAccount.PasswordSalt;
+        //    }
+
+        //    else return null;
+        //}
     }
 }

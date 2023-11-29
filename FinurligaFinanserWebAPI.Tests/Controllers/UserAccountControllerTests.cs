@@ -7,6 +7,7 @@ using Moq.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using FinurligaFinanserWebAPI.DtoModels;
 
 namespace FinurligaFinanserWebAPI.Tests.Controllers
 {
@@ -58,7 +59,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             Assert.Multiple(() =>
             {
                 Assert.That(resultValue, Is.Not.Null);
-                Assert.That(userAccounts, Has.Count.EqualTo(resultValue.Count));
+                if (resultValue is not null) Assert.That(userAccounts, Has.Count.EqualTo(resultValue.Count));
             });
         }
 
@@ -73,5 +74,29 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             return userAccounts;
         }
+
+        [Test]
+        public async Task Login_UserName_Is_Null_Or_Empty_Return_Bad_Request()
+        {
+            var testLoginUser = new LoginUserDTO()
+            {
+                UserName = null,
+                Password = "Password1!"
+            };
+            var result = await _sut.Login(testLoginUser);
+            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        }
+
+        [Test]        
+        public async Task Login_Password_Is_Null_Or_Empty_Return_Bad_Request()
+        {
+            var testLoginUser = new LoginUserDTO()
+            {
+                UserName = "testUser",
+                Password = null
+            };
+            var result = await _sut.Login(testLoginUser);
+            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        }        
     }
 }
