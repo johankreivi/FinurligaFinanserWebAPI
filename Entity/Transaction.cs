@@ -19,7 +19,7 @@ namespace Entity
         [ForeignKey("BankAccount")]
         public int BankAccountId { get; private set; }
         public virtual BankAccount BankAccount { get; private set; }
-
+        
         // Message = Frivillig kommentar att skicka med vid en transaktion
         public string Message {  get; private set; }                
 

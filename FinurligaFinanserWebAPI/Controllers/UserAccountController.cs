@@ -56,8 +56,8 @@ namespace FinurligaFinanserWebAPI.Controllers
 
                 if (validationStatus != UserValidationStatus.Valid)
                 {
-                    _logger.LogError("User account creation failed due to: {0}", validationStatus.ToString());
-                    return StatusCode(500, $"Error creating the user account. Error: {validationStatus}");
+                    _logger.LogError("User account creation failed due to: {ValidationStatus}", validationStatus);
+                    return BadRequest($"Error creating the user account. Error: {validationStatus}");
                 }
                 
                 var confirmationDTO = _mapper.Map<UserAccountConfirmationDTO>(userAccount);

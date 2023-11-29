@@ -123,13 +123,13 @@ namespace Infrastructure.Repositories
             catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
                                                (sqlEx.Number == 2627 || sqlEx.Number == 2601))            {
                 
-                _logger.LogError(ex, "Ett undantag inträffade när ett nytt användarkonto skulle skapas på grund av duplicerat användarnamn.");
+                _logger.LogError(ex, "An exception was thrown when a new UserAccount was created with a duplicate UserName.");
 
-                throw new UserNameAlreadyExistsException("Användarnamnet är upptaget. Välj ett annat namn.");
+                throw new UserNameAlreadyExistsException("UserName taken. Please choose a new one.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ett oväntat undantag inträffade när ett nytt användarkonto skulle skapas.");
+                _logger.LogError(ex, "An exception was thrown when attempting to create a new UserAccount.");
                 throw;
             }
         }
