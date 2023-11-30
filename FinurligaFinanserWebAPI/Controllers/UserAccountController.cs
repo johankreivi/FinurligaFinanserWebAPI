@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Entity;
-using FinurligaFinanserWebAPI.DtoModels;
-using Infrastructure.Helpers;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Infrastructure.Enums;
 using static Infrastructure.Repositories.UserAccountRepository;
+using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
 
 namespace FinurligaFinanserWebAPI.Controllers
 {
@@ -39,28 +39,28 @@ namespace FinurligaFinanserWebAPI.Controllers
         }
 
         [HttpPost("CreateUserAccount")]
-        public async Task<ActionResult<UserAccountConfirmationDTO>> CreateUserAccount(UserAccountDto userAccountDto)
+        public async Task<ActionResult<UserAccountConfirmationDTO>> CreateUserAccount(UserAccountDTO userAccountDto)
         {
             _logger.LogInformation("Attempting to create a new user account.");
 
+            // Kontrollerar att inskickat objekt är i valid state.
             if (!ModelState.IsValid) return BadRequest(ModelState);            
 
             try
             {
-                byte[] passwordSalt = PasswordHasher.GenerateSalt();
-                string passwordHash = PasswordHasher.HashPassword(userAccountDto.Password, passwordSalt);
+                var accountCreationResponse = await _userAccountRepository.CreateUserAccount(
+                    userAccountDto.UserName, userAccountDto.FirstName, userAccountDto.LastName,userAccountDto.Password);
 
-                var userAccount = new UserAccount ( userAccountDto.UserName, userAccountDto.FirstName, userAccountDto.LastName, passwordSalt, passwordHash );
+                var userAccount = accountCreationResponse.Item1;
+                var validationStatus = accountCreationResponse.Item2;
 
-                var createdUserAccount = await _userAccountRepository.CreateUserAccount(userAccount);
-
-                if (createdUserAccount == null)
+                if (validationStatus != UserValidationStatus.Valid)
                 {
-                    _logger.LogError("User account creation failed. The repository method returned null.");
-                    return StatusCode(500, "Error creating the user account.");
+                    _logger.LogError("User account creation failed due to: {ValidationStatus}", validationStatus);
+                    return BadRequest($"Error creating the user account. Error: {validationStatus}");
                 }
-
-                var confirmationDTO = _mapper.Map<UserAccountConfirmationDTO>(createdUserAccount);
+                
+                var confirmationDTO = _mapper.Map<UserAccountConfirmationDTO>(userAccount);
 
                 return CreatedAtAction(nameof(GetOneUser), new { id = confirmationDTO.Id }, confirmationDTO);
             }
@@ -75,5 +75,27 @@ namespace FinurligaFinanserWebAPI.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult<LoginUserConfirmationDTO>> Login(LoginUserDTO loginUser)
+        {            
+            if (string.IsNullOrEmpty(loginUser.UserName) || string.IsNullOrEmpty(loginUser.Password))
+            {
+                return BadRequest("Username or password cannot be null or empty");
+            }
+                        
+            var isLoginSuccess = await _userAccountRepository.AuthorizeUserLogin(loginUser.UserName, loginUser.Password);
+
+            var result = new LoginUserConfirmationDTO { UserName = loginUser.UserName, IsAuthorized = isLoginSuccess};
+
+            if (isLoginSuccess)
+            {
+                result.Message = $"User {loginUser.UserName}, access granted!";
+                return Ok(result);
+            }
+                        
+            result.Message = "Invalid username or password";
+            return Unauthorized(result);
+        }        
     }
 }

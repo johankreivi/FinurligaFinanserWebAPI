@@ -14,8 +14,7 @@ namespace Entity
         public int AccountNumber { get; private set; }
         public string NameOfAccount { get; private set; } = string.Empty;
         public decimal Balance { get; private set; }
-
-        // UserAccountId skickas med från FE. Det ska vara samma värde som Id från Username.
+                
         [ForeignKey("UserAccount")]
         [Required]
         public int UserAccountId { get; private set; }
@@ -30,4 +29,3 @@ namespace Entity
         }
     }
 }
-

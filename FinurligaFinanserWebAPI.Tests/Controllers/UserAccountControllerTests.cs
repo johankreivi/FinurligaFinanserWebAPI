@@ -1,19 +1,21 @@
 ﻿using Entity;
 using Infrastructure.Repositories;
-using Infrastructure;
 using Moq;
 using FinurligaFinanserWebAPI.Controllers;
-using Moq.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
+using Infrastructure.Enums;
+using Microsoft.AspNetCore.Http;
+using static Infrastructure.Repositories.UserAccountRepository;
 
 namespace FinurligaFinanserWebAPI.Tests.Controllers
 {
     public class UserAccountControllerTests
-    {
-        //private List<UserAccount> _userAccounts;
-        
+    {        
+        private UserAccountDTO _userAccountDto;
+
         private Mock<IUserAccountRepository> _mockRepository;
         private Mock<ILogger<UserAccountController>> _mockLogger;
         private Mock<IMapper> _mockMapper;
@@ -23,8 +25,6 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
         [SetUp]
         public void Setup()
         {
-            //_userAccounts = SeedUserAccounts(10);
-
             _mockRepository = new Mock<IUserAccountRepository>();
 
             _mockLogger = new Mock<ILogger<UserAccountController>>();
@@ -32,6 +32,14 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             _mockMapper = new Mock<IMapper>();
 
             _sut = new UserAccountController( _mockRepository.Object, _mockLogger.Object, _mockMapper.Object);
+
+            _userAccountDto = new UserAccountDTO
+            {
+                UserName = "HasseAro",
+                FirstName = "Hasse",
+                LastName = "Aro",
+                Password = "Efterlyst1!"
+            };
         }
 
         [Test]
@@ -58,8 +66,39 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             Assert.Multiple(() =>
             {
                 Assert.That(resultValue, Is.Not.Null);
-                Assert.That(userAccounts, Has.Count.EqualTo(resultValue.Count));
+                if (resultValue is not null) Assert.That(userAccounts, Has.Count.EqualTo(resultValue.Count));
             });
+        }
+
+        [Test]
+        [TestCase("", "ValidPassword1!", typeof(BadRequestObjectResult))]
+        [TestCase(null, "ValidPassword1!", typeof(BadRequestObjectResult))]
+        [TestCase("ValidUsername", "", typeof(BadRequestObjectResult))]
+        [TestCase("ValidUsername", null, typeof(BadRequestObjectResult))]
+        public async Task Login_UserNameOrPasswordIsNullOrEmpty_ReturnBadRequest(string userName, string password, Type expectedType)
+        {
+            var testLoginUser = new LoginUserDTO()
+            {
+                UserName = userName,
+                Password = password
+            };
+
+            var result = await _sut.Login(testLoginUser);
+            Assert.That(result.Result, Is.InstanceOf(expectedType));
+        }
+
+        [Test]
+        [TestCase("ValidUsername", "ValidPassword1!", typeof(OkObjectResult), true)]
+        [TestCase("ValidUsername", "ValidPassword1!", typeof(UnauthorizedObjectResult), false)]
+        public async Task Login_GetsAuthorized_ReturnOk_Else_ReturnUnauthorized(string userName, string password, Type exepectedType, bool isAuthorized) 
+        {
+            _mockRepository.Setup(x => x.AuthorizeUserLogin(userName, password)).ReturnsAsync(isAuthorized);
+
+            LoginUserDTO loginDto = new() { UserName = userName, Password = password };
+
+            var result = await _sut.Login(loginDto);
+
+            Assert.That(result.Result, Is.InstanceOf(exepectedType));
         }
 
         private static List<UserAccount> SeedUserAccounts(int count)
@@ -72,6 +111,81 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             }
 
             return userAccounts;
+        }
+
+        //////////
+        ///
+
+        [Test]
+        public async Task CreateUserAccount_ShouldReturnConfirmation_WhenUserIsCreated()
+        {
+            // Arrange
+            var userAccount = new UserAccount("HasseAro", "Hasse", "Aro", Array.Empty<byte>(), "");
+            var confirmationDto = new UserAccountConfirmationDTO { Id = 1, UserName = "HasseAro", Message = "Account created" };
+
+            _mockRepository.Setup(repo => repo.CreateUserAccount(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((userAccount, UserValidationStatus.Valid));
+
+            _mockMapper.Setup(mapper => mapper.Map<UserAccountConfirmationDTO>(It.IsAny<UserAccount>()))
+                .Returns(confirmationDto);
+
+            // Act
+            var result = await _sut.CreateUserAccount(_userAccountDto);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<ActionResult<UserAccountConfirmationDTO>>());
+
+            var createdAtActionResult = result.Result as CreatedAtActionResult;
+            Assert.That(createdAtActionResult, Is.Not.Null);
+
+            var returnValue = createdAtActionResult.Value as UserAccountConfirmationDTO;
+            Assert.That(returnValue, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(returnValue.UserName, Is.EqualTo("HasseAro"));
+                Assert.That(createdAtActionResult.StatusCode, Is.EqualTo(StatusCodes.Status201Created));
+            });
+        }
+
+        [Test]
+        public async Task CreateUserAccount_ShouldReturnBadRequest_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            _sut.ModelState.AddModelError("UserName", "Username is required");
+
+            // Act
+            var result = await _sut.CreateUserAccount(_userAccountDto);
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            var actionResult = result.Result as BadRequestObjectResult;
+            Assert.That(actionResult, Is.Not.Null);
+            Assert.That(actionResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+        }
+
+        [Test]
+        public async Task CreateUserAccount_ShouldReturnBadRequest_WhenUsernameAlreadyExists()
+        {
+            // Arrange
+            var userAccont = new UserAccount(_userAccountDto.UserName, _userAccountDto.FirstName, _userAccountDto.LastName, Array.Empty<byte>(), "");
+            _mockRepository.Setup(x => x.CreateUserAccount(_userAccountDto.UserName, _userAccountDto.FirstName, _userAccountDto.LastName, _userAccountDto.Password))
+                           .ReturnsAsync((userAccont, UserValidationStatus.NotValid_UserName_Already_Taken));
+
+            // Act
+            var result = await _sut.CreateUserAccount(_userAccountDto);
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf(typeof(BadRequestObjectResult)));
+
+            var badRequestResult = result.Result as BadRequestObjectResult;
+            Assert.That(badRequestResult, Is.Not.Null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(badRequestResult.Value, Is.InstanceOf(typeof(string)));
+                Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
+            });
         }
     }
 }

@@ -30,37 +30,17 @@ namespace Infrastructure.Repositories
             return await _dataContext.UserAccounts.Take(take).Include(x => x.BankAccounts).ToListAsync(); 
         }
 
-        public async Task<UserAccount> GetOneUser(int id)
+        public async Task<UserAccount?> GetOneUser(int id) => await _dataContext.UserAccounts.FindAsync(id);
+
+        private UserValidationStatus ValidateUser(UserAccount userAccount, string password)
         {
-            return await _dataContext.UserAccounts.FindAsync(id);
-        }
-
-        public async Task<UserValidationStatus> RegisterUser(string userName, string firstName, string lastName, string password)
-        {
-            var validationResult = (ValidateUser(userName, firstName, lastName, password));
-            if (validationResult != UserValidationStatus.Valid)
-                return validationResult;
-
-            var passwordSalt = PasswordHasher.GenerateSalt();
-            var passwordHash = PasswordHasher.HashPassword(password, passwordSalt);
-
-            UserAccount userAccount = new(userName, firstName, lastName, passwordSalt, passwordHash);
-            
-            await _dataContext.UserAccounts.AddAsync(userAccount);
-            await _dataContext.SaveChangesAsync();
-
-            return UserValidationStatus.Valid;
-        }
-
-        private UserValidationStatus ValidateUser(string userName, string firstName, string lastName, string password)
-        {
-            var userNameResult = ValidateUserName(userName);
+            var userNameResult = ValidateUserName(userAccount.UserName);
             if (userNameResult != UserValidationStatus.Valid) return userNameResult;
 
-            var firstNameResult = ValidateName(firstName);
+            var firstNameResult = ValidateName(userAccount.FirstName);
             if (firstNameResult != UserValidationStatus.Valid) return firstNameResult;
 
-            var lastNameResult = ValidateName(lastName);
+            var lastNameResult = ValidateName(userAccount.LastName);
             if (lastNameResult != UserValidationStatus.Valid) return lastNameResult;
 
             var passwordResult = ValidatePassword(password);
@@ -110,27 +90,69 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<UserAccount> CreateUserAccount(UserAccount userAccount)
+        public async Task<(UserAccount, UserValidationStatus)> CreateUserAccount(string userName, string firstName, string lastName, string password)
         {
             try
             {
-                _dataContext.UserAccounts.Add(userAccount);
-                await _dataContext.SaveChangesAsync();                
+                byte[] passwordSalt = PasswordHasher.GenerateSalt();
+                string passwordHash = PasswordHasher.HashPassword(password, passwordSalt);
 
-                return userAccount;
+                var userAccount = new UserAccount(userName, firstName, lastName, passwordSalt, passwordHash);
+
+                var validationStatus = ValidateUser(userAccount, password);
+
+                if(_dataContext.UserAccounts.Any(x => x.UserName == userAccount.UserName))
+                {
+                    return (userAccount, UserValidationStatus.NotValid_UserName_Already_Taken);
+                }
+
+                if (validationStatus == UserValidationStatus.Valid)
+                {
+                    _dataContext.UserAccounts.Add(userAccount);
+                    await _dataContext.SaveChangesAsync();
+                }
+
+                return (userAccount, validationStatus);
             }
+
+            // SqlException-nummer 2627 och 2601 representerar specifika fel i SQL Server:
+            // 2627: Violation of PRIMARY KEY constraint - försök att infoga en duplicerad nyckel.
+            // 2601: Cannot insert duplicate key row in object - försök att infoga en rad som bryter mot en unik begränsning eller index.
+            // Dessa felkoder indikerar att ett försök har gjorts att skapa ett användarkonto med ett användarnamn som redan finns.
+
             catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
                                                (sqlEx.Number == 2627 || sqlEx.Number == 2601))            {
                 
-                _logger.LogError(ex, "Ett undantag inträffade när ett nytt användarkonto skulle skapas på grund av duplicerat användarnamn.");
+                _logger.LogError(ex, "An exception was thrown when a new UserAccount was created with a duplicate UserName.");
 
-                throw new UserNameAlreadyExistsException("Användarnamnet är upptaget. Välj ett annat namn.");
+                throw new UserNameAlreadyExistsException("UserName taken. Please choose a new one.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ett oväntat undantag inträffade när ett nytt användarkonto skulle skapas.");
+                _logger.LogError(ex, "An exception was thrown when attempting to create a new UserAccount.");
                 throw;
             }
         }
+
+        public async Task<bool> AuthorizeUserLogin(string userName, string password)
+        {
+            try
+            {
+                var userInDb = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.UserName == userName);
+
+                if(userInDb == null)
+                {
+                    return false;
+                }
+                                    
+                var hashedPassword = PasswordHasher.HashPassword(password, userInDb.PasswordSalt);
+
+                return hashedPassword == userInDb.PasswordHash;
+            }
+            catch (Exception ex)
+            {                
+                throw new Exception("An error occurred while processing your request.", ex);
+            }
+        }        
     }
 }

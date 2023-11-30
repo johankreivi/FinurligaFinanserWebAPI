@@ -14,13 +14,7 @@ namespace Infrastructure.Helpers
         }
 
         // Skapar ett nytt salt
-        public static byte[] GenerateSalt()
-        {
-            using var random = new RNGCryptoServiceProvider();
-            var salt = new byte[32]; // 256 bits
-            random.GetNonZeroBytes(salt);
-            return salt;
-        }
+        public static byte[] GenerateSalt() => RandomNumberGenerator.GetBytes(32); // 256 bits
 
         // Slår samman salt och lösenord
         private static byte[] MergeSaltAndPassword(string password, byte[] salt)

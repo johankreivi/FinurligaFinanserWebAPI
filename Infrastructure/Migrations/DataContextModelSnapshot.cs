@@ -62,6 +62,13 @@ namespace Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("BankAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("ReceivingAccountNumber")
                         .HasColumnType("int");
 
@@ -74,12 +81,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserAccountId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserAccountId");
+                    b.HasIndex("BankAccountId");
 
                     b.ToTable("Transactions");
                 });
@@ -134,11 +138,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Entity.Transaction", b =>
                 {
-                    b.HasOne("Entity.BankAccount", null)
+                    b.HasOne("Entity.BankAccount", "BankAccount")
                         .WithMany("Transactions")
-                        .HasForeignKey("UserAccountId")
+                        .HasForeignKey("BankAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BankAccount");
                 });
 
             modelBuilder.Entity("Entity.BankAccount", b =>

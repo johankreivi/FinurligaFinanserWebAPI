@@ -12,8 +12,8 @@ namespace Infrastructure
         public DataContext() { }
 
         public virtual DbSet<UserAccount> UserAccounts { get; set; }
-        public DbSet<BankAccount> BankAccounts { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
+        public virtual DbSet<BankAccount> BankAccounts { get; set; }
+        public virtual DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,7 +35,9 @@ namespace Infrastructure
                 entity.Property(b => b.Balance).HasColumnType("decimal(18, 2)");
                 entity.Property(e => e.AccountNumber).IsRequired();
                 entity.Property(e => e.NameOfAccount).IsRequired();
-                entity.HasMany(e => e.Transactions).WithOne().HasForeignKey(t => t.UserAccountId);
+                entity.HasMany(b => b.Transactions)
+                      .WithOne(t => t.BankAccount)
+                      .HasForeignKey(t => t.BankAccountId);
             });
 
             modelBuilder.Entity<Transaction>(entity =>
@@ -43,8 +45,8 @@ namespace Infrastructure
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Amount).IsRequired().HasPrecision(18, 2);
                 entity.Property(e => e.TimeStamp).IsRequired();
-                entity.Property(e => e.Type).IsRequired();
-                entity.Property(e => e.UserAccountId).IsRequired();
+                entity.Property(e => e.Type).IsRequired();                
+                entity.Property(e => e.Message);                                
             });
         }
     }

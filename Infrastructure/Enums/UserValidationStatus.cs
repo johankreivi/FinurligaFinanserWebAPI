@@ -9,6 +9,6 @@
         NotValid_UserName_Is_NullOrEmpty,
         NotValid_UserNameLength_Too_Short,
         NotValid_Password_Does_Not_Meet_Requirements,
-
+        NotValid_UserName_Already_Taken,
     }
 }
