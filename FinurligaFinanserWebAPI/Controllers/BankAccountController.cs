@@ -31,8 +31,12 @@ namespace FinurligaFinanserWebAPI.Controllers
                 return CreatedAtAction("GetBankAccount", new { id = getBankAccount.Id }, getBankAccount);
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError("Error creating bank account: {Message}", e.Message); // Fixa lite här
+                if (e.Message.Equals("400BankAccountName")) return BadRequest("Bank account name is invalid.");
+                if (e.Message.Equals("400UserAccountId")) return BadRequest("User id is invalid.");
+                if (e.Message.Equals("404UserAccount")) return NotFound("User account not found.");
                 return StatusCode(500, "Internal Server Error");
             }           
 
