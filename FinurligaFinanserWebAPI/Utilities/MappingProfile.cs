@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Entity;
+using FinurligaFinanserWebAPI.DtoModels.BankAccountDTOs;
 using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
 using Infrastructure.Helpers;
 
@@ -17,7 +18,10 @@ namespace FinurligaFinanserWebAPI.Utilities
                 .ForMember(u => u.PasswordSalt, opt => opt.MapFrom(dto => PasswordHasher.GenerateSalt()))
                 .ForMember(u => u.PasswordHash, opt => opt.MapFrom(dto => PasswordHasher.HashPassword(dto.Password, PasswordHasher.GenerateSalt())))
                 .ForMember(u => u.FirstName, opt => opt.MapFrom(dto => string.Empty))
-                .ForMember(u => u.LastName, opt => opt.MapFrom(dto => string.Empty));            
+                .ForMember(u => u.LastName, opt => opt.MapFrom(dto => string.Empty));
+
+            CreateMap<PostBankAccountDTO, BankAccount>().ReverseMap();
+            CreateMap<BankAccountDTO, BankAccount>().ReverseMap();
         }
     }
 }

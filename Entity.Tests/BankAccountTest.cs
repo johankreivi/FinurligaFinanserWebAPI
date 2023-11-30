@@ -30,6 +30,7 @@
         }
 
         [Test]
-        public void TestInitialBalanceEqualToZero() => Assert.That(_bankAccount.Balance, Is.EqualTo(0));              
+        public void TestInitialBalanceEqualToZero() => Assert.That(_bankAccount.Balance, Is.EqualTo(0));
+
     }
 }

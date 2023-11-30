@@ -7,12 +7,8 @@ namespace Entity
     {
         [Key]
         public int Id { get; set; }
-
-        // AccountNumber genereras automatiskt av API:t och ska vara 10 siffror.
-        [Range(1000000000, 2147483647)]
-
         public int AccountNumber { get; private set; }
-        public string NameOfAccount { get; private set; } = string.Empty;
+        public string NameOfAccount { get; private set; }
         public decimal Balance { get; private set; }
                 
         [ForeignKey("UserAccount")]
