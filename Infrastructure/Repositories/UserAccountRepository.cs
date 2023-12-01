@@ -153,6 +153,12 @@ namespace Infrastructure.Repositories
             {                
                 throw new Exception("An error occurred while processing your request.", ex);
             }
-        }        
+        }
+
+        public async Task<int> GetUserId(string userName)
+        {
+            var user = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.UserName == userName);
+            return user is not null ? user.Id : -1;
+        }
     }
 }
