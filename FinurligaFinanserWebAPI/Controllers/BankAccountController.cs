@@ -27,7 +27,7 @@ namespace FinurligaFinanserWebAPI.Controllers
             {
                 var (createdBankAccount, validationStatus) = await _bankAccountRepository.CreateBankAccount(bankAccountDto.NameOfAccount, bankAccountDto.UserAccountId);
 
-                if(validationStatus != BankAccountValidationStatus.Valid) _logger.LogError("Error creating bank account: {ValidationStatus}", validationStatus);
+                if (validationStatus != BankAccountValidationStatus.Valid) _logger.LogError("Error creating bank account: {ValidationStatus}", validationStatus);
 
                 if (validationStatus == BankAccountValidationStatus.Invalid_BankAccountName) return BadRequest("Bank account name is invalid.");
                 if (validationStatus == BankAccountValidationStatus.Invalid_UserAccountId) return BadRequest("User id is invalid.");
