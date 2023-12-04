@@ -83,10 +83,12 @@ namespace FinurligaFinanserWebAPI.Controllers
             {
                 return BadRequest("Username or password cannot be null or empty");
             }
+
+            int userId = await _userAccountRepository.GetUserId(loginUser.UserName);
                         
             var isLoginSuccess = await _userAccountRepository.AuthorizeUserLogin(loginUser.UserName, loginUser.Password);
 
-            var result = new LoginUserConfirmationDTO { UserName = loginUser.UserName, IsAuthorized = isLoginSuccess};
+            var result = new LoginUserConfirmationDTO {Id=userId, UserName = loginUser.UserName, IsAuthorized = isLoginSuccess};
 
             if (isLoginSuccess)
             {
