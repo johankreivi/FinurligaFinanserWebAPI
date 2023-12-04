@@ -64,6 +64,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             // Assert
             Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
             var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
             Assert.That(objectResult.StatusCode, Is.EqualTo(500));
         }
 
@@ -86,6 +87,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             // Assert
             Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
             var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
             Assert.That(objectResult.StatusCode, Is.EqualTo(400));
             Assert.That(objectResult.Value, Is.EqualTo("Bank account name is invalid."));
         }
@@ -106,6 +108,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             // Assert
             Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
             var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
             Assert.That(objectResult.StatusCode, Is.EqualTo(400));
             Assert.That(objectResult.Value, Is.EqualTo("User id is invalid."));
         }
@@ -125,6 +128,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             // Assert
             Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
             var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
             Assert.That(objectResult.StatusCode, Is.EqualTo(404));
             Assert.That(objectResult.Value, Is.EqualTo("User account not found."));
         }
@@ -143,23 +147,27 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             // Assert
             Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
-            Assert.That((result.Result as OkObjectResult).StatusCode, Is.EqualTo(200));
-            Assert.That((result.Result as OkObjectResult).Value, Is.InstanceOf<BankAccountDTO>());
+            var objectResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(200));
+            Assert.That(objectResult.Value, Is.InstanceOf<BankAccountDTO>());
         }
 
         [Test]
         public async Task GetBankAcount_WhenCalled_ReturnsNotFound()
         {
             // Arrange
-            _bankAccountRepositoryMock.Setup(x => x.GetBankAccount(It.IsAny<int>())).ReturnsAsync((BankAccount)null);
+            _bankAccountRepositoryMock.Setup(x => x.GetBankAccount(It.IsAny<int>())).ReturnsAsync((BankAccount)null!);
 
             // Act
             var result = await _sut.GetBankAccount(1);
 
             // Assert
             Assert.That(result.Result, Is.InstanceOf<NotFoundObjectResult>());
-            Assert.That((result.Result as NotFoundObjectResult).Value, Is.EqualTo("Bank account not found."));
-            Assert.That((result.Result as NotFoundObjectResult).StatusCode, Is.EqualTo(404));
+            var objectResult = result.Result as NotFoundObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.Value, Is.EqualTo("Bank account not found."));
+            Assert.That(objectResult.StatusCode, Is.EqualTo(404));
         }
 
         [Test]
@@ -173,8 +181,10 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             // Assert
             Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
-            Assert.That((result.Result as ObjectResult).StatusCode, Is.EqualTo(500));
-            Assert.That((result.Result as ObjectResult).Value, Is.EqualTo("Internal Server Error"));
+            var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+            Assert.That(objectResult.Value, Is.EqualTo("Internal Server Error"));
         }
 
         [Test]
@@ -194,23 +204,27 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             // Assert
             Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
-            Assert.That((result.Result as OkObjectResult).StatusCode, Is.EqualTo(200));
-            Assert.That((result.Result as OkObjectResult).Value, Is.InstanceOf<IEnumerable<BankAccountDTO>>());
+            var objectResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(200));
+            Assert.That(objectResult.Value, Is.InstanceOf<IEnumerable<BankAccountDTO>>());
         }
 
         [Test]
         public async Task GetAllBankAcounts_WhenCalled_ReturnsNotFound()
         {
             // Arrange
-            _bankAccountRepositoryMock.Setup(x => x.GetAllBankAccounts(It.IsAny<int>())).ReturnsAsync((List<BankAccount>)null);
+            _bankAccountRepositoryMock.Setup(x => x.GetAllBankAccounts(It.IsAny<int>())).ReturnsAsync((List<BankAccount>)null!);
 
             // Act
             var result = await _sut.GetAllBankAccounts(1);
 
             // Assert
             Assert.That(result.Result, Is.InstanceOf<NotFoundObjectResult>());
-            Assert.That((result.Result as NotFoundObjectResult).Value, Is.EqualTo("Bank accounts not found."));
-            Assert.That((result.Result as NotFoundObjectResult).StatusCode, Is.EqualTo(404));
+            var objectResult = result.Result as NotFoundObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.Value, Is.EqualTo("Bank accounts not found."));
+            Assert.That(objectResult.StatusCode, Is.EqualTo(404));
         }
 
         [Test]
@@ -224,8 +238,10 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             // Assert
             Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
-            Assert.That((result.Result as ObjectResult).StatusCode, Is.EqualTo(500));
-            Assert.That((result.Result as ObjectResult).Value, Is.EqualTo("Internal Server Error"));
+            var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+            Assert.That(objectResult.Value, Is.EqualTo("Internal Server Error"));
         }
 
     }
