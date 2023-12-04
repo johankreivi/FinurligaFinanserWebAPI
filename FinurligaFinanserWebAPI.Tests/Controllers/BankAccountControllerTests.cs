@@ -36,7 +36,14 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             // Arrange
             var bankAccountDto = new PostBankAccountDTO { NameOfAccount = "TestAccount", UserAccountId = 1 };
             var bankAccount = new BankAccount(1, "TestAccount", 1);
-            _mockMapper.Setup(x => x.Map<BankAccountDTO>(bankAccount)).Returns(new BankAccountDTO());
+            _mockMapper.Setup(x => x.Map<BankAccountDTO>(bankAccount)).Returns(new BankAccountDTO{  
+                Id = default,
+                AccountNumber = default,
+                NameOfAccount = "",
+                Balance = default,
+                Transactions = null,
+            });
+
             _bankAccountRepositoryMock.Setup(x => x.CreateBankAccount(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync((bankAccount, BankAccountValidationStatus.Valid));
 
             // Act
