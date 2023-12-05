@@ -2,8 +2,8 @@
 {
     public class UserAccountDetailsDTO
     {
-        public int id {  get; set; }
-        public string firstName { get; set; } = string.Empty;
-        public string lastName { get; set; } = string.Empty;
+        public int Id {  get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
     }
 }

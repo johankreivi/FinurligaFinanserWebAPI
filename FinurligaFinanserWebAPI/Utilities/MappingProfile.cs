@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Entity;
 using FinurligaFinanserWebAPI.DtoModels.BankAccountDTOs;
+using FinurligaFinanserWebAPI.DtoModels.TransactionDTOs;
 using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
 using Infrastructure.Helpers;
 
@@ -24,9 +25,15 @@ namespace FinurligaFinanserWebAPI.Utilities
             CreateMap<BankAccountDTO, BankAccount>().ReverseMap();
 
             CreateMap<UserAccount, UserAccountDetailsDTO>()
-                .ForMember(u => u.id, opt => opt.MapFrom(dto => dto.Id))
-                .ForMember(u => u.firstName, opt => opt.MapFrom(dto => dto.FirstName))
-                .ForMember(u => u.lastName, opt => opt.MapFrom(dto => dto.LastName));
+                .ForMember(u => u.Id, opt => opt.MapFrom(dto => dto.Id))
+                .ForMember(u => u.FirstName, opt => opt.MapFrom(dto => dto.FirstName))
+                .ForMember(u => u.LastName, opt => opt.MapFrom(dto => dto.LastName));            
+
+            CreateMap<Transaction, DepositConfirmationDTO>()
+                .ForMember(t => t.Type, opt => opt.MapFrom(dto => dto.Type))
+                .ForMember(t => t.ReceivingAccountNumber, opt => opt.MapFrom(dto => dto.ReceivingAccountNumber))
+                .ForMember(t => t.Amount, opt => opt.MapFrom(dto => dto.Amount))
+                .ForMember(t => t.TimeStamp, opt => opt.MapFrom(dto => dto.TimeStamp));
         }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231129124231_Initial")]
-    partial class Initial
+    [Migration("20231205224915_model_update")]
+    partial class model_update
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,13 +69,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Message")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ReceivingAccountNumber")
                         .HasColumnType("int");
 
-                    b.Property<int>("SendingAccountNumber")
+                    b.Property<int?>("SendingAccountNumber")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("TimeStamp")

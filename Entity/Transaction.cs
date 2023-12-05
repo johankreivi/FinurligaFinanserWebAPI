@@ -8,22 +8,23 @@ namespace Entity
     {
         [Key]
         public int Id { get; set; }
-        public int ReceivingAccountNumber { get; private set; }
-        public int SendingAccountNumber { get; private set; }
+
+        public int ReceivingAccountNumber { get; set; }
+        public int? SendingAccountNumber { get; set; }
         [Required]
         [Range(1, double.MaxValue, ErrorMessage = "Transaktionen måste vara minst 1 kr.")]
-        public decimal Amount { get; private set; }
-        public DateTime TimeStamp { get; private set; }                
+        public decimal Amount { get; set; }
+        public DateTime TimeStamp { get; set; }                
         [Required]
-        public TransactionType Type { get; private set; }
+        public TransactionType Type { get; set; }
         [ForeignKey("BankAccount")]
-        public int BankAccountId { get; private set; }
-        public virtual BankAccount BankAccount { get; private set; }
+        public int BankAccountId { get; set; }
+        public virtual BankAccount? BankAccount { get; set; }
         
         // Message = Frivillig kommentar att skicka med vid en transaktion
-        public string Message {  get; private set; }                
+        public string? Message {  get; set; }                
 
-        public Transaction(int receivingAccountNumber, int sendingAccountNumber, decimal amount, TransactionType type, string message = "")
+        public Transaction(int receivingAccountNumber, int? sendingAccountNumber, decimal amount, TransactionType type, string? message)
         {
             ReceivingAccountNumber = receivingAccountNumber;
             SendingAccountNumber = sendingAccountNumber;

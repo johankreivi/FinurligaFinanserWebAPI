@@ -28,7 +28,10 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
 builder.Services.AddScoped<IBankAccountRepository, BankAccountRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ILogger, Logger<UserAccountRepository>>();
+builder.Services.AddScoped<ILogger, Logger<BankAccountRepository>>();
+builder.Services.AddScoped<ILogger, Logger<TransactionRepository>>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 

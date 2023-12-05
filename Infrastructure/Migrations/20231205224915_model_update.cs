@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class model_update : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,12 +57,12 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReceivingAccountNumber = table.Column<int>(type: "int", nullable: false),
-                    SendingAccountNumber = table.Column<int>(type: "int", nullable: false),
+                    SendingAccountNumber = table.Column<int>(type: "int", nullable: true),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     BankAccountId = table.Column<int>(type: "int", nullable: false),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
