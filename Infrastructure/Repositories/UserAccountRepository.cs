@@ -139,5 +139,11 @@ namespace Infrastructure.Repositories
             var user = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.UserName == userName);
             return user is not null ? user.Id : -1;
         }
+
+        public async Task<UserAccount> GetUserDetails(int id)
+        {
+            var response = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.Id == id);
+            return response;
+        }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Enums;
 using static Infrastructure.Repositories.UserAccountRepository;
 using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FinurligaFinanserWebAPI.Controllers
 {
@@ -105,6 +106,14 @@ namespace FinurligaFinanserWebAPI.Controllers
                         
             result.Message = "Invalid username or password";
             return Unauthorized(result);
-        }        
+        }
+
+        [HttpGet("GetUserInfo/{id}")]
+        public async Task<ActionResult<UserAccountDetailsDTO>> GetUserDetails(int id)
+        {
+        var getInfo = await _userAccountRepository.GetUserDetails(id);
+        var details = _mapper.Map<UserAccountDetailsDTO>(getInfo);
+        return Ok(details);
+        }
     }
 }

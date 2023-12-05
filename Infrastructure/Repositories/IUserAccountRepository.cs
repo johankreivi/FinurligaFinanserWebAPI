@@ -10,5 +10,6 @@ namespace Infrastructure.Repositories
         Task<UserAccount?> GetOneUser(int id);
         Task<bool> AuthorizeUserLogin(string userName, string password);
         Task<int> GetUserId(string userName);
+        Task<UserAccount> GetUserDetails(int id);
     }    
 }

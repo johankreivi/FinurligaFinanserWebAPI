@@ -22,6 +22,11 @@ namespace FinurligaFinanserWebAPI.Utilities
 
             CreateMap<PostBankAccountDTO, BankAccount>().ReverseMap();
             CreateMap<BankAccountDTO, BankAccount>().ReverseMap();
+
+            CreateMap<UserAccount, UserAccountDetailsDTO>()
+                .ForMember(u => u.id, opt => opt.MapFrom(dto => dto.Id))
+                .ForMember(u => u.firstName, opt => opt.MapFrom(dto => dto.FirstName))
+                .ForMember(u => u.lastName, opt => opt.MapFrom(dto => dto.LastName));
         }
     }
 }
