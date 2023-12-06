@@ -9,8 +9,7 @@ namespace Entity
         public int Id { get; set; }
         public int AccountNumber { get; private set; }
         public string NameOfAccount { get; private set; }
-        public decimal Balance { get; private set; }
-                
+        public decimal Balance { get; set; }                
         [ForeignKey("UserAccount")]
         [Required]
         public int UserAccountId { get; private set; }
