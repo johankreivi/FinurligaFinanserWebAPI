@@ -82,14 +82,6 @@ namespace Infrastructure.Repositories
             return UserValidationStatus.Valid;
         }
 
-        public class UserNameAlreadyExistsException : Exception
-        {
-            public UserNameAlreadyExistsException(string message)
-                : base(message)
-            {
-            }
-        }
-
         public async Task<(UserAccount, UserValidationStatus)> CreateUserAccount(string userName, string firstName, string lastName, string password)
         {
             try
@@ -113,19 +105,6 @@ namespace Infrastructure.Repositories
                 }
 
                 return (userAccount, validationStatus);
-            }
-
-            // SqlException-nummer 2627 och 2601 representerar specifika fel i SQL Server:
-            // 2627: Violation of PRIMARY KEY constraint - försök att infoga en duplicerad nyckel.
-            // 2601: Cannot insert duplicate key row in object - försök att infoga en rad som bryter mot en unik begränsning eller index.
-            // Dessa felkoder indikerar att ett försök har gjorts att skapa ett användarkonto med ett användarnamn som redan finns.
-
-            catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
-                                               (sqlEx.Number == 2627 || sqlEx.Number == 2601))            {
-                
-                _logger.LogError(ex, "An exception was thrown when a new UserAccount was created with a duplicate UserName.");
-
-                throw new UserNameAlreadyExistsException("UserName taken. Please choose a new one.");
             }
             catch (Exception ex)
             {
@@ -153,6 +132,18 @@ namespace Infrastructure.Repositories
             {                
                 throw new Exception("An error occurred while processing your request.", ex);
             }
-        }        
+        }
+
+        public async Task<int> GetUserId(string userName)
+        {
+            var user = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.UserName == userName);
+            return user is not null ? user.Id : -1;
+        }
+
+        public async Task<UserAccount> GetUserDetails(int id)
+        {
+            var response = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.Id == id);
+            return response;
+        }
     }
 }

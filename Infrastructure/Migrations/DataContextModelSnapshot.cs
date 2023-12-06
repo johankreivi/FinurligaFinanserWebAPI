@@ -66,13 +66,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Message")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ReceivingAccountNumber")
                         .HasColumnType("int");
 
-                    b.Property<int>("SendingAccountNumber")
+                    b.Property<int?>("SendingAccountNumber")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("TimeStamp")

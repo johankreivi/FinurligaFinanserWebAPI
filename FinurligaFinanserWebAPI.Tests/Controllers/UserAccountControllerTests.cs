@@ -187,5 +187,74 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
                 Assert.That(badRequestResult.StatusCode, Is.EqualTo(StatusCodes.Status400BadRequest));
             });
         }
+
+
+        [Test]
+        public async Task CreateUserAccount_ShouldReturnInternalServerError_WhenExceptionIsThrown()
+        {
+            // Arrange
+            _mockRepository.Setup(x => x.CreateUserAccount(_userAccountDto.UserName, _userAccountDto.FirstName, _userAccountDto.LastName, _userAccountDto.Password)).ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _sut.CreateUserAccount(_userAccountDto);
+
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
+            var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+        }
+
+        [Test]
+        public async Task GetOneUser_ReturnsOk_WhenUserExists()
+        {
+            // Arrange
+            var fakeUser = new UserAccount("HasseAro", "Hasse", "Aro", Array.Empty<byte>(), "");
+            _mockRepository.Setup(repo => repo.GetOneUser(It.IsAny<int>())).ReturnsAsync(fakeUser);
+            var dto = new UserAccountConfirmationDTO(); // Replace with actual DTO object
+            _mockMapper.Setup(mapper => mapper.Map<UserAccountConfirmationDTO>(fakeUser)).Returns(dto);
+
+            // Act
+            var result = await _sut.GetOneUser(1);
+
+            // Assert
+            var okResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.That(okResult.StatusCode, Is.EqualTo(200));
+            Assert.IsInstanceOf<UserAccountConfirmationDTO>(okResult.Value);
+        }
+
+        [Test]
+        public async Task GetOneUser_ReturnsNotFound_WhenUserDoesNotExist()
+        {
+            // Arrange
+            _mockRepository.Setup(repo => repo.GetOneUser(It.IsAny<int>())).ReturnsAsync((UserAccount)null!);
+
+            // Act
+            var result = await _sut.GetOneUser(1);
+
+            // Assert
+            var notFoundResult = result.Result as NotFoundResult;
+            Assert.IsNotNull(notFoundResult);
+            Assert.That(notFoundResult.StatusCode, Is.EqualTo(404));
+        }
+
+        [Test]
+        public async Task GetOneUser_ReturnsInternalServerError_WhenExceptionIsThrown()
+        {
+            // Arrange
+            _mockRepository.Setup(repo => repo.GetOneUser(It.IsAny<int>())).ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _sut.GetOneUser(1);
+
+            // Assert
+            var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+        }
+
     }
+
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Enums;
 using static Infrastructure.Repositories.UserAccountRepository;
 using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FinurligaFinanserWebAPI.Controllers
 {
@@ -31,11 +32,26 @@ namespace FinurligaFinanserWebAPI.Controllers
         }
 
         [HttpGet("GetOne")]
-        public async Task<ActionResult> GetOneUser(int id)
+        public async Task<ActionResult<UserAccountConfirmationDTO>> GetOneUser(int id)
         {
-            var result = await _userAccountRepository.GetOneUser(id);
+            try
+            {
+                var result = await _userAccountRepository.GetOneUser(id);
+                if (result == null)
+                {
+                    _logger.LogError("User account not found: {Id}", id);
+                    return NotFound();
+                }
+                _logger.LogInformation("User account found: {UserAccount}", result);
 
-            return Ok(result);
+                var userAccountConfirmationDTO = _mapper.Map<UserAccountConfirmationDTO>(result);
+                return Ok(userAccountConfirmationDTO);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while attempting to get one user account.");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
 
         [HttpPost("CreateUserAccount")]
@@ -48,11 +64,8 @@ namespace FinurligaFinanserWebAPI.Controllers
 
             try
             {
-                var accountCreationResponse = await _userAccountRepository.CreateUserAccount(
-                    userAccountDto.UserName, userAccountDto.FirstName, userAccountDto.LastName,userAccountDto.Password);
-
-                var userAccount = accountCreationResponse.Item1;
-                var validationStatus = accountCreationResponse.Item2;
+                var (userAccount, validationStatus) = await _userAccountRepository.CreateUserAccount(
+                                       userAccountDto.UserName, userAccountDto.FirstName, userAccountDto.LastName, userAccountDto.Password);
 
                 if (validationStatus != UserValidationStatus.Valid)
                 {
@@ -63,11 +76,6 @@ namespace FinurligaFinanserWebAPI.Controllers
                 var confirmationDTO = _mapper.Map<UserAccountConfirmationDTO>(userAccount);
 
                 return CreatedAtAction(nameof(GetOneUser), new { id = confirmationDTO.Id }, confirmationDTO);
-            }
-
-            catch (UserNameAlreadyExistsException uex)
-            {
-                return BadRequest(uex.Message);
             }
             catch (Exception ex)
             {
@@ -83,10 +91,12 @@ namespace FinurligaFinanserWebAPI.Controllers
             {
                 return BadRequest("Username or password cannot be null or empty");
             }
+
+            int userId = await _userAccountRepository.GetUserId(loginUser.UserName);
                         
             var isLoginSuccess = await _userAccountRepository.AuthorizeUserLogin(loginUser.UserName, loginUser.Password);
 
-            var result = new LoginUserConfirmationDTO { UserName = loginUser.UserName, IsAuthorized = isLoginSuccess};
+            var result = new LoginUserConfirmationDTO {Id=userId, UserName = loginUser.UserName, IsAuthorized = isLoginSuccess};
 
             if (isLoginSuccess)
             {
@@ -96,6 +106,14 @@ namespace FinurligaFinanserWebAPI.Controllers
                         
             result.Message = "Invalid username or password";
             return Unauthorized(result);
-        }        
+        }
+
+        [HttpGet("GetUserInfo/{id}")]
+        public async Task<ActionResult<UserAccountDetailsDTO>> GetUserDetails(int id)
+        {
+        var getInfo = await _userAccountRepository.GetUserDetails(id);
+        var details = _mapper.Map<UserAccountDetailsDTO>(getInfo);
+        return Ok(details);
+        }
     }
 }

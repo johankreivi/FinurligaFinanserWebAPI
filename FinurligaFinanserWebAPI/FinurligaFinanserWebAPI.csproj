@@ -28,9 +28,4 @@
 		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="DtoModels\BankAccountDTOs\" />
-	  <Folder Include="DtoModels\TransactionDTOs\" />
-	</ItemGroup>
-
 </Project>
