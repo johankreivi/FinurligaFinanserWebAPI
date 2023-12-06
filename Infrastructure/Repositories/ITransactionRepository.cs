@@ -9,6 +9,6 @@ namespace Infrastructure.Repositories
 {
     public interface ITransactionRepository
     {
-        public Task<Transaction> Deposit(Transaction transaction);
+        public Task<Transaction?> Deposit(Transaction transaction);
     }
 }

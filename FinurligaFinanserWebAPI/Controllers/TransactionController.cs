@@ -27,7 +27,7 @@ namespace FinurligaFinanserWebAPI.Controllers
         {
             var transactionObject = new Transaction(depositDTO.ReceivingAccountNumber, null, depositDTO.Amount, TransactionType.Deposit, null);
             var response = await _transactionRepository.Deposit(transactionObject);
-            var confirmedDeposit = new DepositConfirmationDTO(response.Type, response.ReceivingAccountNumber, response.Amount, response.TimeStamp);
+            var confirmedDeposit = new DepositConfirmationDTO(response.Type, response.ReceivingAccountNumber, response.Amount);
             return Ok(confirmedDeposit);
         }
     }

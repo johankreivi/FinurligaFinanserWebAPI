@@ -16,7 +16,7 @@ namespace Infrastructure.Repositories
             _dataContext = dataContext;
         }
 
-        public async Task<Transaction> Deposit(Transaction transaction)
+        public async Task<Transaction?> Deposit(Transaction transaction)
         {
             var depositAmount = transaction.Amount;
             var bankAccountId = await _dataContext.BankAccounts
@@ -26,8 +26,7 @@ namespace Infrastructure.Repositories
 
             if (bankAccountId != default)
             {
-                var bankAccount = await _dataContext.BankAccounts
-                        .FirstOrDefaultAsync(x => x.Id == bankAccountId);
+                var bankAccount = await _dataContext.BankAccounts.FirstOrDefaultAsync(x => x.Id == bankAccountId);
                 transaction.BankAccountId = bankAccountId;
                 transaction.BankAccount = bankAccount;
 
@@ -40,16 +39,9 @@ namespace Infrastructure.Repositories
                     await _dataContext.SaveChangesAsync();
                     return transaction;
                 }
-                if (bankAccount == null)
-                {
-                    throw new InvalidOperationException("Bankkonto hittades inte.");
-                }
-                return null;
+                else return null;                
             }
-            else
-            {
-                return null;
-            }            
+            else return null;                        
         }
     }
 }
