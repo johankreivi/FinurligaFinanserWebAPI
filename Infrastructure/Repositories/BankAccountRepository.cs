@@ -34,18 +34,12 @@ namespace Infrastructure.Repositories
         public async Task<IEnumerable<BankAccount?>?> GetAllBankAccounts(int userAccountId)
         {
             var bankAccounts = await _dataContext.BankAccounts.Where(x => x.UserAccountId == userAccountId).ToListAsync();
-            if (bankAccounts == null) return null;
+            if (bankAccounts.Count() == 0) return null;
 
             return bankAccounts;
         }
 
-        public async Task<BankAccount?> GetBankAccount(int id)
-        {
-            var bankAccount = await _dataContext.BankAccounts.FindAsync(id);
-            if (bankAccount == null) return null;
-
-            return bankAccount;
-        }
+        public async Task<BankAccount?> GetBankAccount(int id) => await _dataContext.BankAccounts.FindAsync(id);
 
         #region Private Methods
         private int GetBankAccountNumber()
