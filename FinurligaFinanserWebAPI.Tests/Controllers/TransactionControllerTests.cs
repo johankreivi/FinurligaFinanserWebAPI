@@ -41,7 +41,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
                 Amount = 100
             };
             var transaction = new Transaction(123456789, null, 100, "deposit");
-            _mapperMock.Setup(x => x.Map<DepositConfirmationDTO>(It.IsAny<Transaction>())).Returns(new DepositConfirmationDTO{ AccountBalance = 100, Amount = 100, ReceivingAccountNumber = 123456789 });
+            _mapperMock.Setup(x => x.Map<DepositConfirmationDTO>(It.IsAny<Transaction>())).Returns(new DepositConfirmationDTO{ AccountBalance = 100, Amount = 100, ReceivingAccountNumber = 123456789, TimeStamp = new DateTime(), Type = TransactionType.Deposit });
             _transactionRepositoryMock.Setup(x => x.Deposit(It.IsAny<Transaction>())).ReturnsAsync(transaction);
 
             // Act
@@ -69,7 +69,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             };
             var transaction = new Transaction(123456789, 987654321, 100, "test");
             _mapperMock.Setup(x => x.Map<Transaction>(It.IsAny<PostTransactionDTO>())).Returns(transaction);
-            _mapperMock.Setup(x => x.Map<TransactionConfirmationDTO>(It.IsAny<Transaction>())).Returns(new TransactionConfirmationDTO { AccountBalance = 100, Amount = 100, ReceivingAccountNumber = 123456789, SendingAccountNumber = 987654321 });
+            _mapperMock.Setup(x => x.Map<TransactionConfirmationDTO>(It.IsAny<Transaction>())).Returns(new TransactionConfirmationDTO { AccountBalance = 100, Amount = 100, ReceivingAccountNumber = 123456789, SendingAccountNumber = 987654321, Type = TransactionType.Transaction, Message = "test", TimeStamp = new DateTime()});
             _transactionRepositoryMock.Setup(x => x.CreateTransaction(It.IsAny<Transaction>())).ReturnsAsync((transaction, Infrastructure.Enums.TransactionStatus.Success));
 
             // Act

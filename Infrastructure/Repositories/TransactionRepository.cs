@@ -53,7 +53,7 @@ namespace Infrastructure.Repositories
 
             return (transactionForSender, TransactionStatus.Success);  
         }
-        public async Task<Transaction?> GetTransaction(int id) => await _dataContext.Transactions.FindAsync(id);        
+        public async Task<Transaction?> GetTransaction(int id) => await _dataContext.Transactions.FindAsync(id);       
 
         public async Task<Transaction?> Deposit(Transaction transaction)
         {
