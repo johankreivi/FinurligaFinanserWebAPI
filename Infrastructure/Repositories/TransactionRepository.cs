@@ -70,6 +70,14 @@ namespace Infrastructure.Repositories
 
             return transaction;
         }
+        
+        public async Task<IEnumerable<Transaction?>> GetTransactionsByBankAccountId(int id)
+        {
+            var transactions = await _dataContext.Transactions.Where(x => x.BankAccountId == id).ToListAsync();
+            if (transactions.Count() == 0) return null;
+
+            return transactions;
+        }
 
         #region Private Methods
         private BankAccount GetBankAccount(int? accountNumber) => _dataContext.BankAccounts.First(x => x.AccountNumber == accountNumber);
@@ -101,7 +109,7 @@ namespace Infrastructure.Repositories
             return sendingBankAccount.Balance;
         }
 
-        
+
         #endregion
 
 

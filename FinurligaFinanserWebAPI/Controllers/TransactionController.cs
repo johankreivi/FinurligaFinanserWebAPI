@@ -79,5 +79,27 @@ namespace FinurligaFinanserWebAPI.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+        [HttpGet("BankAccount/{id}")]
+        public async Task<ActionResult<IEnumerable<TransactionConfirmationDTO>>> GetTransactionsByBankAccountId(int id)
+        {
+            try
+            {
+                var transactions = await _transactionRepository.GetTransactionsByBankAccountId(id);
+                if (transactions == null)
+                {
+                    _logger.LogError("Transactions not found: {Id}", id);
+                    return NotFound("Transactions not found");
+                }
+
+                _logger.LogInformation("Transactions fetched successfully: {Transactions}", transactions);
+                return Ok(_mapper.Map<IEnumerable<TransactionConfirmationDTO>>(transactions));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error fetching transactions: {Message}", e.Message);
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
     }
 }
