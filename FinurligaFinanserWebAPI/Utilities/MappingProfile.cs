@@ -22,18 +22,22 @@ namespace FinurligaFinanserWebAPI.Utilities
                 .ForMember(u => u.LastName, opt => opt.MapFrom(dto => string.Empty));
 
             CreateMap<PostBankAccountDTO, BankAccount>().ReverseMap();
-            CreateMap<BankAccountDTO, BankAccount>().ReverseMap();
+            CreateMap<BankAccountDTO, BankAccount>().ReverseMap();           
 
             CreateMap<UserAccount, UserAccountDetailsDTO>()
                 .ForMember(u => u.Id, opt => opt.MapFrom(dto => dto.Id))
                 .ForMember(u => u.FirstName, opt => opt.MapFrom(dto => dto.FirstName))
-                .ForMember(u => u.LastName, opt => opt.MapFrom(dto => dto.LastName));            
+                .ForMember(u => u.LastName, opt => opt.MapFrom(dto => dto.LastName));
 
             CreateMap<Transaction, DepositConfirmationDTO>()
                 .ForMember(t => t.Type, opt => opt.MapFrom(dto => dto.Type))
                 .ForMember(t => t.ReceivingAccountNumber, opt => opt.MapFrom(dto => dto.ReceivingAccountNumber))
                 .ForMember(t => t.Amount, opt => opt.MapFrom(dto => dto.Amount))
-                .ForMember(t => t.TimeStamp, opt => opt.MapFrom(dto => dto.TimeStamp));
+                .ForMember(t => t.TimeStamp, opt => opt.MapFrom(dto => dto.TimeStamp))
+                .ForMember(t => t.AccountBalance, opt => opt.MapFrom(dto => dto.AccountBalance));
+
+            CreateMap<PostTransactionDTO, Transaction>().ReverseMap();
+            CreateMap<Transaction, TransactionConfirmationDTO>().ReverseMap();
         }
     }
 }

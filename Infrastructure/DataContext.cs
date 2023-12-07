@@ -49,5 +49,26 @@ namespace Infrastructure
                 entity.Property(e => e.Message);                                
             });
         }
+
+        //public override int SaveChanges()
+        //{
+        //    //var Transaction = Transactions.TableAs.Include(t => t.TableB).FirstOrDefault(t => t.Id == someId);
+        //    foreach (var entry in ChangeTracker.Entries<Transaction>())
+        //    {
+        //        if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+        //        {
+        //            // Assuming that the calculation is based on a property of TableB
+        //            // Ensure that TableB is loaded or use a different method to obtain the necessary data
+        //            var bAccounts = BankAccounts.Find(entry.Entity.BankAccountId);
+        //            if (bAccounts != null)
+        //            {
+        //                // Perform your calculation here
+        //                entry.Entity.AccountBalance = bAccounts.Balance + entry.Entity.Amount;
+        //            }
+        //        }
+        //    }
+
+        //    return base.SaveChanges();
+        //}
     }
 }

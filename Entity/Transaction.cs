@@ -19,18 +19,16 @@ namespace Entity
         public TransactionType Type { get; set; }
         [ForeignKey("BankAccount")]
         public int BankAccountId { get; set; }
-        public virtual BankAccount? BankAccount { get; set; }
-        
-        // Message = Frivillig kommentar att skicka med vid en transaktion
-        public string? Message {  get; set; }                
+        public virtual BankAccount? BankAccount { get; set; }        
+        public string? Message {  get; set; }   
+        public decimal AccountBalance { get; set; }
 
-        public Transaction(int receivingAccountNumber, int? sendingAccountNumber, decimal amount, TransactionType type, string? message)
+        public Transaction(int receivingAccountNumber, int? sendingAccountNumber, decimal amount, string? message)
         {
             ReceivingAccountNumber = receivingAccountNumber;
             SendingAccountNumber = sendingAccountNumber;
             Amount = amount;
             TimeStamp = DateTime.Now;
-            Type = type;
             Message = message;
         }
     }
