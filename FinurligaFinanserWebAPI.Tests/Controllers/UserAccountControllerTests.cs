@@ -8,7 +8,6 @@ using AutoMapper;
 using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
 using Infrastructure.Enums;
 using Microsoft.AspNetCore.Http;
-using static Infrastructure.Repositories.UserAccountRepository;
 
 namespace FinurligaFinanserWebAPI.Tests.Controllers
 {
@@ -253,6 +252,25 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             var objectResult = result.Result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+        }
+
+        [Test]
+        public async Task GetUserDetails_ReturnsOk_WhenUserExists()
+        {
+            // Arrange
+            var fakeUser = new UserAccount("HasseAro", "Hasse", "Aro", Array.Empty<byte>(), "") {Id = 1 };
+            _mockRepository.Setup(repo => repo.GetUserDetails(It.IsAny<int>())).ReturnsAsync(fakeUser);
+            _mockMapper.Setup(mapper => mapper.Map<UserAccountDetailsDTO>(fakeUser)).Returns(new UserAccountDetailsDTO{
+                Id = 1, FirstName = "Hasse", LastName = "Aro"});
+
+            // Act
+            var result = await _sut.GetUserDetails(1);
+
+            // Assert
+            var okResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.That(okResult.StatusCode, Is.EqualTo(200));
+            Assert.IsInstanceOf<UserAccountDetailsDTO>(okResult.Value);
         }
 
     }

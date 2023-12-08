@@ -1,14 +1,13 @@
 ﻿using Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Infrastructure.Enums;
 
 namespace Infrastructure.Repositories
 {
     public interface ITransactionRepository
     {
         public Task<Transaction?> Deposit(Transaction transaction);
+        public Task<(Transaction?, TransactionStatus)> CreateTransaction(Transaction transaction);
+        public Task<Transaction?> GetTransaction(int id);
+        Task<IEnumerable<Transaction?>> GetTransactionsByBankAccountId(int id);
     }
 }

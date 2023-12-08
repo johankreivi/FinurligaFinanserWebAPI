@@ -84,8 +84,6 @@ namespace Infrastructure.Repositories
 
         public async Task<(UserAccount, UserValidationStatus)> CreateUserAccount(string userName, string firstName, string lastName, string password)
         {
-            try
-            {
                 byte[] passwordSalt = PasswordHasher.GenerateSalt();
                 string passwordHash = PasswordHasher.HashPassword(password, passwordSalt);
 
@@ -105,18 +103,10 @@ namespace Infrastructure.Repositories
                 }
 
                 return (userAccount, validationStatus);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An exception was thrown when attempting to create a new UserAccount.");
-                throw;
-            }
         }
 
         public async Task<bool> AuthorizeUserLogin(string userName, string password)
         {
-            try
-            {
                 var userInDb = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.UserName == userName);
 
                 if(userInDb == null)
@@ -127,11 +117,6 @@ namespace Infrastructure.Repositories
                 var hashedPassword = PasswordHasher.HashPassword(password, userInDb.PasswordSalt);
 
                 return hashedPassword == userInDb.PasswordHash;
-            }
-            catch (Exception ex)
-            {                
-                throw new Exception("An error occurred while processing your request.", ex);
-            }
         }
 
         public async Task<int> GetUserId(string userName)

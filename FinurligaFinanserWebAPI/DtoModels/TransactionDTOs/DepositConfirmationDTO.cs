@@ -8,12 +8,6 @@ namespace FinurligaFinanserWebAPI.DtoModels.TransactionDTOs
         public int ReceivingAccountNumber { get; set; }
         public decimal Amount { get; set; }
         public DateTime TimeStamp { get; set; }
-        public DepositConfirmationDTO(TransactionType transactionType, int receivingAccountNumber, decimal amount)
-        {
-            Type = transactionType;
-            ReceivingAccountNumber = receivingAccountNumber;
-            Amount = amount;
-            TimeStamp = DateTime.Now;
-        }
+        public decimal AccountBalance { get; set; }     
     }
 }
