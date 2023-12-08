@@ -6,6 +6,7 @@ using Moq;
 using Moq.EntityFrameworkCore;
 using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Infrastructure.Tests.Repositories
 {
@@ -49,19 +50,34 @@ namespace Infrastructure.Tests.Repositories
         }
 
         [Test]
+        [TestCase("UserAccount1", UserValidationStatus.NotValid_UserName_Already_Taken)]// Användarnamnet är upptaget
+        public async Task TestAlredyTakenUsername(string userName, UserValidationStatus expectedValidationStatus)
+        {
+
+            string validFirstName = "validFName";
+            string validLastName = "validLName";
+            string validPassword = "AAAAAb1?";
+            var result = await _sut.CreateUserAccount(userName, validFirstName, validLastName, validPassword);
+
+            Assert.That(result.Item2, Is.EqualTo(expectedValidationStatus));
+        }
+
+       
+
+        [Test]
         [TestCase("aaaaaaa", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // För kort
         [TestCase("aaaaaaaa", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // Tillräckligt långt, liten bokstav, men ingen stor bokstav, siffra eller specialtecken.
         [TestCase("aaaaaaaB", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // Tillräckligt långt, liten bokstav, stor bokstav, men ingen siffra eller specialtecken.
         [TestCase("aaaaaaB1", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // Tillräckligt långt, liten bokstav, stor bokstav och siffra, men inget specialtecken.        
         [TestCase("AAAAAA1?", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // Tillräckligt långt, stor bokstav, siffra och specialtecken, men ingen liten bokstav.
         [TestCase("AAAAAb1?", UserValidationStatus.Valid)] // Uppfyller alla krav
-
-        public async Task TestPasswordIsValid(string password, UserValidationStatus expectedValidationStatus)
+        [TestCase("        ", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // Tillräckligt långt, Bara mellanslag
+        public async Task TestPasswordIsValid(string? password, UserValidationStatus expectedValidationStatus)
         {
             string validUserName = "validUName";
             string validFirstName = "validFName";
             string validLastName = "validLName";
-            var result = await _sut.CreateUserAccount(validUserName, validFirstName, validLastName, password);
+            var result = await _sut.CreateUserAccount(validUserName, validFirstName, validLastName, password!);
 
             Assert.That(result.Item2, Is.EqualTo(expectedValidationStatus));
         }
@@ -211,6 +227,30 @@ namespace Infrastructure.Tests.Repositories
             var result = await _sut.AuthorizeUserLogin(userName, password);
 
             Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public async Task GetUserId_UserExist_ReturnId()
+        {
+            var result = await _sut.GetUserId("UserAccount0");
+
+            Assert.That(result, Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task GetUserId_UserDoesNotExist_ReturnMinusOne()
+        {
+            var result = await _sut.GetUserId("notExistingUsername");
+
+            Assert.That(result, Is.EqualTo(-1));
+        }
+
+        [Test]
+        public async Task GetUserDetails_UserExist_ReturnUserAccount()
+        {
+            var result = await _sut.GetUserDetails(0);
+
+            Assert.That(result, Is.InstanceOf(typeof(UserAccount)));
         }
 
         private static List<UserAccount> SeedUserAccounts()
