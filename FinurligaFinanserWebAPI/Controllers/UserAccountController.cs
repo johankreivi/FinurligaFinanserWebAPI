@@ -115,5 +115,19 @@ namespace FinurligaFinanserWebAPI.Controllers
         var details = _mapper.Map<UserAccountDetailsDTO>(getInfo);
         return Ok(details);
         }
+
+        [HttpGet("GetUserAccountByBankAccountNumber/{bankAccountNumber}")]
+        public async Task<ActionResult<UserAccountDetailsDTO>> GetUserAccountByBankAccountNumber(int bankAccountNumber)
+        {            
+            var userAccountId = await _userAccountRepository.GetUserAccountByBankAccountNumber(bankAccountNumber);
+                        
+            if (userAccountId == 0) return NotFound("Hittade inget user account som matchade bankkontonumret");
+            
+            var userDetailsResult = await GetUserDetails(userAccountId);
+            
+            if (userDetailsResult.Result == null) return NotFound("Hittade inga användardetaljer för detta useraccountid.");
+            
+            return userDetailsResult;
+        }
     }
 }
