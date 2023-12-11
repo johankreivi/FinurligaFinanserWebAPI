@@ -6,5 +6,7 @@ namespace Infrastructure.Enums
         NotFound,
         Invalid_BankAccountName,
         Invalid_UserAccountId,
+        Invalid_amount,
+        ServerError,
     }
 }

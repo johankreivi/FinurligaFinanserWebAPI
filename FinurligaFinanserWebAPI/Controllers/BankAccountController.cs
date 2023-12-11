@@ -94,5 +94,36 @@ namespace FinurligaFinanserWebAPI.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<BankAccountDTO?>> DeleteBankAccount(int id)
+        {
+            try
+            {
+                var bankAccount = await _bankAccountRepository.GetBankAccount(id);
+                if (bankAccount == null)
+                {
+                    _logger.LogError("Bank account not found: {Id}", id);
+                    return NotFound("Bank account not found.");
+                }
+
+                var (deletedBankAccount, validationStatus) = await _bankAccountRepository.DeleteBankAccount(id);
+
+                if (validationStatus != BankAccountValidationStatus.Valid) _logger.LogError("Error deleting bank account: {ValidationStatus}", validationStatus);
+
+                if (validationStatus == BankAccountValidationStatus.ServerError) return BadRequest("Server error when deleting bankaccount");
+                if (validationStatus == BankAccountValidationStatus.Invalid_amount) return BadRequest("Bank account needs to be empty");
+                if (validationStatus == BankAccountValidationStatus.NotFound) return NotFound("Bank account not found.");
+
+                _logger.LogInformation("Bank account deleted: {BankAccount}", deletedBankAccount);
+
+                return Ok(_mapper.Map<BankAccountDTO>(deletedBankAccount));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error deleting bank account: {Message}", e.Message);
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
     }
 }

@@ -3,6 +3,9 @@ using Entity;
 using Infrastructure.Enums;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.EntityFrameworkCore;
@@ -207,6 +210,22 @@ namespace Infrastructure.Tests.Repositories
 
             // Assert
             Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public async Task DeleteBankAccount_WhenCalled_ReturnsBankAccount()
+        {
+            // Arrange
+            var id = 1;
+            _mockDataContext.Setup(x => x.BankAccounts.FindAsync(id)).ReturnsAsync(_bankAccounts.Find(x => x.Id == id));
+            var result = await _sut.GetBankAccount(id);
+
+            // Act
+            var (resultBankAccount, resultValidationStatus) = await _sut.DeleteBankAccount(id);
+
+            // Assert
+            Assert.That(resultBankAccount, Is.TypeOf<BankAccount>());
+            Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Valid));
         }
 
     }

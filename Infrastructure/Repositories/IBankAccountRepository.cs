@@ -9,5 +9,7 @@ namespace Infrastructure.Repositories
         Task<(BankAccount?, BankAccountValidationStatus)> CreateBankAccount(string bankAccountName, int userAccountId);
         Task<IEnumerable<BankAccount?>?> GetAllBankAccounts(int userAccountId);
         Task<BankAccount?> GetBankAccount(int id);
+
+        Task<(BankAccount?, BankAccountValidationStatus)> DeleteBankAccount(int id);
     }
 }
