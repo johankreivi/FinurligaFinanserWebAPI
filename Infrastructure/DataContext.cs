@@ -37,7 +37,8 @@ namespace Infrastructure
                 entity.Property(e => e.NameOfAccount).IsRequired();
                 entity.HasMany(b => b.Transactions)
                       .WithOne(t => t.BankAccount)
-                      .HasForeignKey(t => t.BankAccountId);
+                      .HasForeignKey(t => t.BankAccountId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Transaction>(entity =>

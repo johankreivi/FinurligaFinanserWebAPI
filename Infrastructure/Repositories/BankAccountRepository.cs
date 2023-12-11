@@ -31,6 +31,25 @@ namespace Infrastructure.Repositories
             return (bankAccount, BankAccountValidationStatus.Valid);
         }
 
+        public async Task<(BankAccount?, BankAccountValidationStatus)> DeleteBankAccount(int id)
+        {
+            var bankAccount = await _dataContext.BankAccounts.FindAsync(id);
+
+            if (bankAccount == null) return (null, BankAccountValidationStatus.NotFound);
+
+            if (bankAccount.Balance != 0) return (null, BankAccountValidationStatus.Invalid_amount);
+
+            var result = _dataContext.BankAccounts.Remove(bankAccount);
+
+            if(result.State == EntityState.Deleted)
+            {
+                await _dataContext.SaveChangesAsync();
+                return (bankAccount, BankAccountValidationStatus.Valid);
+            }
+
+            return (null, BankAccountValidationStatus.ServerError);
+        }
+
         public async Task<IEnumerable<BankAccount?>?> GetAllBankAccounts(int userAccountId)
         {
             var bankAccounts = await _dataContext.BankAccounts.Where(x => x.UserAccountId == userAccountId).ToListAsync();
