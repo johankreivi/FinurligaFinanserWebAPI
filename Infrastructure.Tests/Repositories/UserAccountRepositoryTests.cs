@@ -268,5 +268,37 @@ namespace Infrastructure.Tests.Repositories
 
             return userAccounts;
         }
+
+        [Test]
+        [TestCase(1234567890, "TestAccount", 1)]
+        public async Task GetUserAccountByBankAccountNumber_ReturnsCorrectUserAccountId(int accountNumber, string accountName, int userAccountId)
+        {
+            // Arrange
+            var bankAccounts = new List<BankAccount>
+            {
+                new(accountNumber, accountName, userAccountId),                
+            };
+
+            _mockDataContext.Setup(c => c.BankAccounts).ReturnsDbSet(bankAccounts);
+
+            // Act
+            var result = await _sut.GetUserAccountByBankAccountNumber(1234567890);
+
+            // Assert
+            Assert.That(result, Is.EqualTo(1));            
+        }
+
+        [Test]
+        public async Task GetUserAccountByBankAccountNumber_ReturnsZeroWhenNotFound()
+        {
+            // Arrange
+            _mockDataContext.Setup(c => c.BankAccounts).ReturnsDbSet(new List<BankAccount>());
+
+            // Act
+            var result = await _sut.GetUserAccountByBankAccountNumber(1234567890);
+
+            // Assert
+            Assert.That(result, Is.EqualTo(0));
+        }        
     }
 }
