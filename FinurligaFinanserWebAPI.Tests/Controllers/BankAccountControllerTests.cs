@@ -251,5 +251,117 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             Assert.That(objectResult.Value, Is.EqualTo("Internal Server Error"));
         }
 
+        [Test]
+        public async Task DeleteBankAccount_WhenCalled_ReturnsNotFound()
+        {
+            // Arrange
+            _bankAccountRepositoryMock.Setup(x => x.GetBankAccount(It.IsAny<int>())).ReturnsAsync((BankAccount)null!);
+
+            // Act
+            var result = await _sut.DeleteBankAccount(1);
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf<NotFoundObjectResult>());
+            var objectResult = result.Result as NotFoundObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.Value, Is.EqualTo("Bank account not found."));
+            Assert.That(objectResult.StatusCode, Is.EqualTo(404));
+        }
+
+        [Test]
+        public async Task DeleteBankAccount_WhenCalled_ReturnsOkResult()
+        {
+            // Arrange
+            var bankAccount = new BankAccount(1, "TestAccount", 1);
+            _bankAccountRepositoryMock.Setup(x => x.GetBankAccount(It.IsAny<int>())).ReturnsAsync(bankAccount);
+            _bankAccountRepositoryMock.Setup(x => x.DeleteBankAccount(It.IsAny<int>())).ReturnsAsync((bankAccount, BankAccountValidationStatus.Valid));
+            _mockMapper.Setup(x => x.Map<BankAccountDTO>(bankAccount)).Returns(new BankAccountDTO());
+
+            // Act
+            var result = await _sut.DeleteBankAccount(1);
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+            var objectResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(200));
+            Assert.That(objectResult.Value, Is.InstanceOf<BankAccountDTO>());
+        }
+
+        [Test]
+        public async Task DeleteBankAccount_WhenCalled_Returns500()
+        {
+            // Arrange
+            _bankAccountRepositoryMock.Setup(x => x.GetBankAccount(It.IsAny<int>())).ThrowsAsync(new Exception());
+
+            // Act
+            var result = await _sut.DeleteBankAccount(1);
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
+            var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+            Assert.That(objectResult.Value, Is.EqualTo("Internal Server Error"));
+        }
+
+        [Test]
+        public async Task DeleteBankAccount_WhenCalled_ReturnsBadRequest()
+        {
+            // Arrange
+            var bankAccount = new BankAccount(1, "TestAccount", 1);
+            _bankAccountRepositoryMock.Setup(x => x.GetBankAccount(It.IsAny<int>())).ReturnsAsync(bankAccount);
+            _bankAccountRepositoryMock.Setup(x => x.DeleteBankAccount(It.IsAny<int>())).ReturnsAsync((bankAccount, BankAccountValidationStatus.ServerError));
+
+            // Act
+            var result = await _sut.DeleteBankAccount(1);
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf<BadRequestObjectResult>());
+            var objectResult = result.Result as BadRequestObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(400));
+            Assert.That(objectResult.Value, Is.EqualTo("Server error when deleting bankaccount"));
+
+        }
+
+        [Test]
+        public async Task DeleteBankAccount_WhenCalled_ReturnsBadRequest_InvalidAmount()
+        {
+            // Arrange
+            var bankAccount = new BankAccount(1, "TestAccount", 1);
+            _bankAccountRepositoryMock.Setup(x => x.GetBankAccount(It.IsAny<int>())).ReturnsAsync(bankAccount);
+            _bankAccountRepositoryMock.Setup(x => x.DeleteBankAccount(It.IsAny<int>())).ReturnsAsync((bankAccount, BankAccountValidationStatus.Invalid_amount));
+
+            // Act
+            var result = await _sut.DeleteBankAccount(1);
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf<BadRequestObjectResult>());
+            var objectResult = result.Result as BadRequestObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(400));
+            Assert.That(objectResult.Value, Is.EqualTo("Bank account needs to be empty"));
+        }
+
+        [Test]
+        public async Task DeleteBankAccount_WhenCalled_ReturnsNotFound_BankAccountNotFound()
+        {
+            // Arrange
+            var bankAccount = new BankAccount(1, "TestAccount", 1);
+            _bankAccountRepositoryMock.Setup(x => x.GetBankAccount(It.IsAny<int>())).ReturnsAsync(bankAccount);
+            _bankAccountRepositoryMock.Setup(x => x.DeleteBankAccount(It.IsAny<int>())).ReturnsAsync((bankAccount, BankAccountValidationStatus.NotFound));
+
+            // Act
+            var result = await _sut.DeleteBankAccount(1);
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf<NotFoundObjectResult>());
+            var objectResult = result.Result as NotFoundObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(404));
+            Assert.That(objectResult.Value, Is.EqualTo("Bank account not found."));
+        }
+
     }
 }
