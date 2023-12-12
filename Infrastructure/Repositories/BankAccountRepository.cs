@@ -41,13 +41,8 @@ namespace Infrastructure.Repositories
 
             var result = _dataContext.BankAccounts.Remove(bankAccount);
 
-            if(result.State == EntityState.Deleted)
-            {
-                await _dataContext.SaveChangesAsync();
-                return (bankAccount, BankAccountValidationStatus.Valid);
-            }
-
-            return (null, BankAccountValidationStatus.ServerError);
+            await _dataContext.SaveChangesAsync();
+            return (bankAccount, BankAccountValidationStatus.Valid);
         }
 
         public async Task<IEnumerable<BankAccount?>?> GetAllBankAccounts(int userAccountId)
