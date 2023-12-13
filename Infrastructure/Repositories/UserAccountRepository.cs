@@ -133,8 +133,6 @@ namespace Infrastructure.Repositories
 
         public async Task<int> GetUserAccountByBankAccountNumber(int bankAccountNumber)
         {
-            try
-            {
                 var bankAccount = await _dataContext.BankAccounts.FirstOrDefaultAsync(b => b.AccountNumber == bankAccountNumber);
                 
 
@@ -144,11 +142,6 @@ namespace Infrastructure.Repositories
                 }
 
                 return bankAccount.UserAccountId;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("An error occurred while fetching bank account from database.", ex);
-            }
         }
     }
 }
