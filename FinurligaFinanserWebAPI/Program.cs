@@ -61,7 +61,6 @@ try
 catch (Exception ex)
 {
     logger.LogError(ex, "Something wrong happened during migration");
-
 }
 
 app.Run();

@@ -25,7 +25,7 @@ namespace FinurligaFinanserWebAPI.Controllers
         {            
             try
             {
-                var (createdBankAccount, validationStatus) = await _bankAccountRepository.CreateBankAccount(bankAccountDto.NameOfAccount, bankAccountDto.UserAccountId);
+                var (createdBankAccount, validationStatus) = await _bankAccountRepository.CreateBankAccount(bankAccountDto.NameOfAccount!, bankAccountDto.UserAccountId);
 
                 if (validationStatus != BankAccountValidationStatus.Valid) _logger.LogError("Error creating bank account: {ValidationStatus}", validationStatus);
 

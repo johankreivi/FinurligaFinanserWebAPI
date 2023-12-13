@@ -1,6 +1,5 @@
 ﻿namespace FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs
 {
-    // Används när backend skickar en loginbekfräftelse till frontend.
     public class LoginUserConfirmationDTO
     {
         public int Id { get; set; }
