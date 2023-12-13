@@ -122,8 +122,6 @@ namespace FinurligaFinanserWebAPI.Controllers
             
             var userDetailsResult = await GetUserDetails(userAccountId);
             
-            if (userDetailsResult.Result == null) return NotFound("Hittade inga användardetaljer för detta useraccountid.");
-            
             return userDetailsResult;
         }
     }

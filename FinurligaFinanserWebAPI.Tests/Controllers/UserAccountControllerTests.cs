@@ -211,7 +211,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             // Arrange
             var fakeUser = new UserAccount("HasseAro", "Hasse", "Aro", Array.Empty<byte>(), "");
             _mockRepository.Setup(repo => repo.GetOneUser(It.IsAny<int>())).ReturnsAsync(fakeUser);
-            var dto = new UserAccountConfirmationDTO(); // Replace with actual DTO object
+            var dto = new UserAccountConfirmationDTO();
             _mockMapper.Setup(mapper => mapper.Map<UserAccountConfirmationDTO>(fakeUser)).Returns(dto);
 
             // Act
@@ -273,6 +273,60 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             Assert.IsInstanceOf<UserAccountDetailsDTO>(okResult.Value);
         }
 
+        [Test]
+        public async Task GetUserAccountByBankAccountNumber_ReturnsOk_WhenUserExists()
+        {
+            // Arrange
+            var userId = 1;
+            var fakeUser = new UserAccount("HasseAro", "Hasse", "Aro", Array.Empty<byte>(), "") { Id = userId };
+            var bankAccountNumber = 123456789;
+            var fakeBankAccount = new BankAccount(bankAccountNumber, "Privatkonto", fakeUser.Id);
+            _mockRepository.Setup(repo => repo.GetUserAccountByBankAccountNumber(It.IsAny<int>())).ReturnsAsync(userId);
+            _mockRepository.Setup(x => x.GetUserDetails(userId)).ReturnsAsync(fakeUser);
+            _mockMapper.Setup(mapper => mapper.Map<UserAccountDetailsDTO>(fakeUser)).Returns(new UserAccountDetailsDTO
+            {
+                Id = 1,
+                FirstName = "Hasse",
+                LastName = "Aro"
+            });
+
+            // Act
+            var result = await _sut.GetUserAccountByBankAccountNumber(bankAccountNumber);
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf(typeof(OkObjectResult)));
+
+            var okResult = result.Result as OkObjectResult;
+
+            Assert.That(okResult.Value, Is.InstanceOf(typeof(UserAccountDetailsDTO)));
+
+            var resultValue = (UserAccountDetailsDTO)okResult.Value;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultValue, Is.Not.Null);
+                Assert.That(resultValue.Id, Is.EqualTo(userId));
+                Assert.That(resultValue.FirstName, Is.EqualTo(fakeUser.FirstName));
+                Assert.That(resultValue.LastName, Is.EqualTo(fakeUser.LastName));
+            });
+        }
+
+        [Test]
+        public async Task GetUserAccountByBankAccountNumber_ReturnsNotFound_WhenUserDoesNotExist()
+        {
+            // Arrange
+            var bankAccountNumber = 123456789;
+            _mockRepository.Setup(repo => repo.GetUserAccountByBankAccountNumber(It.IsAny<int>())).ReturnsAsync(0);
+
+            // Act
+            var result = await _sut.GetUserAccountByBankAccountNumber(bankAccountNumber);
+
+            // Assert
+            Assert.That(result.Result, Is.InstanceOf(typeof(NotFoundObjectResult)));
+
+            var notFoundResult = result.Result as NotFoundObjectResult;
+            Assert.That(notFoundResult.Value, Is.EqualTo("Hittade inget user account som matchade bankkontonumret"));
+        }
     }
 
 }

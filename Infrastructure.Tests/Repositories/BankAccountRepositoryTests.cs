@@ -274,6 +274,5 @@ namespace Infrastructure.Tests.Repositories
             Assert.That(resultBankAccount, Is.Null);
             Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Invalid_amount));
         }
-
     }
 }
