@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Infrastructure.Helpers
+﻿namespace Infrastructure.Helpers
 {
     public static class BankAccountValidator
     {
@@ -22,7 +16,6 @@ namespace Infrastructure.Helpers
         public static bool ValidateUserAccountId(int userAccountId)
         {
             if (userAccountId <= 0) return false;
-
             return true;
         }
     }

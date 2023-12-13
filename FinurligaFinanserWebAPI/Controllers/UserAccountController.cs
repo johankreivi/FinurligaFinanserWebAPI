@@ -3,9 +3,7 @@ using Entity;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Enums;
-using static Infrastructure.Repositories.UserAccountRepository;
 using FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FinurligaFinanserWebAPI.Controllers
 {
@@ -23,7 +21,7 @@ namespace FinurligaFinanserWebAPI.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("GetALL")]
+        [HttpGet]
         public async Task<ActionResult<List<UserAccount>>> GetAll(int take = 10)
         {
             var result = await _userAccountRepository.GetAllUserAccountsAsync(take);
@@ -31,7 +29,7 @@ namespace FinurligaFinanserWebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetOne")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<UserAccountConfirmationDTO>> GetOneUser(int id)
         {
             try
@@ -54,12 +52,11 @@ namespace FinurligaFinanserWebAPI.Controllers
             }
         }
 
-        [HttpPost("CreateUserAccount")]
+        [HttpPost]
         public async Task<ActionResult<UserAccountConfirmationDTO>> CreateUserAccount(UserAccountDTO userAccountDto)
         {
             _logger.LogInformation("Attempting to create a new user account.");
 
-            // Kontrollerar att inskickat objekt är i valid state.
             if (!ModelState.IsValid) return BadRequest(ModelState);            
 
             try
@@ -108,15 +105,15 @@ namespace FinurligaFinanserWebAPI.Controllers
             return Unauthorized(result);
         }
 
-        [HttpGet("GetUserInfo/{id}")]
+        [HttpGet("Info/{id}")]
         public async Task<ActionResult<UserAccountDetailsDTO>> GetUserDetails(int id)
         {
-        var getInfo = await _userAccountRepository.GetUserDetails(id);
-        var details = _mapper.Map<UserAccountDetailsDTO>(getInfo);
-        return Ok(details);
+            var getInfo = await _userAccountRepository.GetUserDetails(id);
+            var details = _mapper.Map<UserAccountDetailsDTO>(getInfo);
+            return Ok(details);
         }
 
-        [HttpGet("GetUserAccountByBankAccountNumber/{bankAccountNumber}")]
+        [HttpGet("BankAccount/{bankAccountNumber}")]
         public async Task<ActionResult<UserAccountDetailsDTO>> GetUserAccountByBankAccountNumber(int bankAccountNumber)
         {            
             var userAccountId = await _userAccountRepository.GetUserAccountByBankAccountNumber(bankAccountNumber);

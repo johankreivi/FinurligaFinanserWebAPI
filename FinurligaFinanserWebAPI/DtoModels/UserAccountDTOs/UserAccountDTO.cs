@@ -1,6 +1,5 @@
 ﻿namespace FinurligaFinanserWebAPI.DtoModels.UserAccountDTOs
 {
-    // Dessa data skickas från frontend till backend.
     public class UserAccountDTO
     {
         public string UserName { get; set; } = string.Empty;

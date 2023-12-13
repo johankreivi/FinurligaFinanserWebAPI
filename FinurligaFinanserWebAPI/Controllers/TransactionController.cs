@@ -15,7 +15,6 @@ namespace FinurligaFinanserWebAPI.Controllers
         private readonly ILogger<TransactionController> _logger;
         private readonly IMapper _mapper;
 
-
         public TransactionController(ITransactionRepository transactionRepository, ILogger<TransactionController> logger, IMapper mapper)
         {
             _logger = logger;
@@ -49,7 +48,7 @@ namespace FinurligaFinanserWebAPI.Controllers
                 _logger.LogInformation("Transaction created: {Transaction}", createdTransaction);
                 var transactionConfirmationDTO = _mapper.Map<TransactionConfirmationDTO>(createdTransaction);
 
-                return CreatedAtAction("GetTransaction", new {id = createdTransaction.Id}, transactionConfirmationDTO);
+                return CreatedAtAction("GetTransaction", new {id = createdTransaction!.Id}, transactionConfirmationDTO);
             }
             catch (Exception e)
             {

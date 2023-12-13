@@ -38,8 +38,6 @@ namespace Infrastructure.Repositories
             _dataContext.Transactions.Add(transactionForSender);
             await _dataContext.SaveChangesAsync();
 
-            /////////////////////////////////////////////////////////////
-
             var transactionForReceiver = new Transaction(transaction.ReceivingAccountNumber,
                                                     transaction.SendingAccountNumber,
                                                     transaction.Amount,
@@ -71,7 +69,7 @@ namespace Infrastructure.Repositories
             return transaction;
         }
         
-        public async Task<IEnumerable<Transaction?>> GetTransactionsByBankAccountId(int id)
+        public async Task<IEnumerable<Transaction>?> GetTransactionsByBankAccountId(int id)
         {
             var transactions = await _dataContext.Transactions.Where(x => x.BankAccountId == id).ToListAsync();
             if (transactions.Count() == 0) return null;
@@ -108,8 +106,6 @@ namespace Infrastructure.Repositories
 
             return sendingBankAccount.Balance;
         }
-
-
         #endregion
 
 

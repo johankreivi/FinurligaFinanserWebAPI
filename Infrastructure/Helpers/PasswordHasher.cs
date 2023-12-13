@@ -5,7 +5,6 @@ namespace Infrastructure.Helpers
 {
     public static class PasswordHasher
     {
-        // Skapar en hash av ett lösenord
         public static string HashPassword(string password, byte[] salt)
         {
             var saltedPassword = MergeSaltAndPassword(password, salt);
@@ -13,10 +12,8 @@ namespace Infrastructure.Helpers
             return Convert.ToBase64String(hash);
         }
 
-        // Skapar ett nytt salt
-        public static byte[] GenerateSalt() => RandomNumberGenerator.GetBytes(32); // 256 bits
+        public static byte[] GenerateSalt() => RandomNumberGenerator.GetBytes(32);
 
-        // Slår samman salt och lösenord
         private static byte[] MergeSaltAndPassword(string password, byte[] salt)
         {
             var passwordBytes = Encoding.UTF8.GetBytes(password);

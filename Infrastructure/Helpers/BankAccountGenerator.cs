@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
+﻿
 namespace Infrastructure.Helpers
 {
     public static class BankAccountGenerator

@@ -125,7 +125,7 @@ namespace Infrastructure.Repositories
             return user is not null ? user.Id : -1;
         }
 
-        public async Task<UserAccount> GetUserDetails(int id)
+        public async Task<UserAccount?> GetUserDetails(int id)
         {
             var response = await _dataContext.UserAccounts.FirstOrDefaultAsync(x => x.Id == id);
             return response;
