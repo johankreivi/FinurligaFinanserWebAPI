@@ -1,7 +1,5 @@
-﻿using NUnit.Framework;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Infrastructure;
-using System.Linq;
 
 namespace InfrastructureTests
 {
@@ -22,19 +20,19 @@ namespace InfrastructureTests
         [Test]
         public void UserAccountsDbSet_Initialized_NotNull()
         {
-            Assert.NotNull(_dataContext.UserAccounts);
+            Assert.That(_dataContext.UserAccounts, Is.Not.Null);
         }
 
         [Test]
         public void BankAccountsDbSet_Initialized_NotNull()
         {
-            Assert.NotNull(_dataContext.BankAccounts);
+            Assert.That(_dataContext.BankAccounts, Is.Not.Null);
         }
 
         [Test]
         public void TransactionsDbSet_Initialized_NotNull()
         {
-            Assert.NotNull(_dataContext.Transactions);
+            Assert.That(_dataContext.Transactions, Is.Not.Null);
         }
 
         [Test]
@@ -42,10 +40,15 @@ namespace InfrastructureTests
         {
             var entity = _dataContext.Model.FindEntityType(typeof(Entity.UserAccount));
 
-            Assert.AreEqual("UserAccount", entity.GetTableName());
-            Assert.AreEqual("Id", entity.FindPrimaryKey().Properties.First().Name);
+            Assert.That(entity, Is.Not.Null);
+            Assert.That(entity.FindPrimaryKey(), Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(entity.GetTableName(), Is.EqualTo("UserAccount"));
+                Assert.That(entity.FindPrimaryKey().Properties[0].Name, Is.EqualTo("Id"));
 
-            Assert.AreEqual(6, entity.GetProperties().Count());
+                Assert.That(entity.GetProperties().Count(), Is.EqualTo(6));
+            });
         }
 
         [Test]
@@ -53,10 +56,16 @@ namespace InfrastructureTests
         {
             var entity = _dataContext.Model.FindEntityType(typeof(Entity.BankAccount));
 
-            Assert.AreEqual("BankAccount", entity.GetTableName());
-            Assert.AreEqual("Id", entity.FindPrimaryKey().Properties.First().Name);
+            Assert.That(entity, Is.Not.Null);
+            Assert.That(entity.FindPrimaryKey(), Is.Not.Null);
 
-            Assert.AreEqual(5, entity.GetProperties().Count());
+            Assert.Multiple(() =>
+            {
+                Assert.That(entity.GetTableName(), Is.EqualTo("BankAccount"));
+                Assert.That(entity.FindPrimaryKey().Properties[0].Name, Is.EqualTo("Id"));
+
+                Assert.That(entity.GetProperties().Count(), Is.EqualTo(5));
+            });
         }
 
         [Test]
@@ -64,10 +73,16 @@ namespace InfrastructureTests
         {
             var entity = _dataContext.Model.FindEntityType(typeof(Entity.Transaction));
 
-            Assert.AreEqual("Transaction", entity.GetTableName());
-            Assert.AreEqual("Id", entity.FindPrimaryKey().Properties.First().Name);
+            Assert.That(entity, Is.Not.Null);
+            Assert.That(entity.FindPrimaryKey(), Is.Not.Null);
 
-            Assert.AreEqual(9, entity.GetProperties().Count());
+            Assert.Multiple(() =>
+            {
+                Assert.That(entity.GetTableName(), Is.EqualTo("Transaction"));
+                Assert.That(entity.FindPrimaryKey().Properties[0].Name, Is.EqualTo("Id"));
+
+                Assert.That(entity.GetProperties().Count(), Is.EqualTo(9));
+            });
         }
         // Additional tests...
 

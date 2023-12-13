@@ -13,30 +13,21 @@ namespace Infrastructure.Tests.Repositories
     {
         private Mock<DataContext> _mockDataContext;
         private TransactionRepository _sut;
-        private Mock<ILogger<TransactionRepository>> _logger;
         private List<UserAccount> _userAccounts;
         private List<BankAccount> _bankAccounts;
         private List<Transaction> _transactions;
-        private Mock<UserAccountRepository> _mockUserAccountRepository;
-        private BankAccountRepository _bankAccountRepository;
 
         [SetUp]
         public void Setup()
         {
             _mockDataContext = new Mock<DataContext>();
-
-            _logger = new Mock<ILogger<TransactionRepository>>();
             _userAccounts = SeedUserAccounts();
             _bankAccounts = SeedBankAccounts();
             _transactions = SeedTransactions();
             _mockDataContext.Setup(x => x.UserAccounts).ReturnsDbSet(_userAccounts);
             _mockDataContext.Setup(x => x.BankAccounts).ReturnsDbSet(_bankAccounts);
             _mockDataContext.Setup(x => x.Transactions).ReturnsDbSet(_transactions);
-            _mockUserAccountRepository = new Mock<UserAccountRepository>(_mockDataContext.Object);
-            _bankAccountRepository = new BankAccountRepository(_mockDataContext.Object);
-
             _sut = new TransactionRepository(_mockDataContext.Object);
-
         }
 
         private static List<UserAccount> SeedUserAccounts()
@@ -75,8 +66,10 @@ namespace Infrastructure.Tests.Repositories
 
             for (int i = 1; i < 6; i++)
             {
-                var transaction = new Transaction(i, i + 1, i, $"TestMessage{i}");
-                transaction.BankAccountId = i;
+                var transaction = new Transaction(i, i + 1, i, $"TestMessage{i}")
+                {
+                    BankAccountId = i
+                };
                 transactions.Add(transaction);
             }
 
@@ -91,9 +84,11 @@ namespace Infrastructure.Tests.Repositories
             var transaction = new Transaction(1, 2, amount, "TestMessage");
 
             var (result, status) = await _sut.CreateTransaction(transaction);
-
-            Assert.That(result, Is.Null);
-            Assert.That(status, Is.EqualTo(TransactionStatus.Invalid_Amount));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Null);
+                Assert.That(status, Is.EqualTo(TransactionStatus.Invalid_Amount));
+            });
         }
 
         [Test]
@@ -102,8 +97,11 @@ namespace Infrastructure.Tests.Repositories
             var transaction = new Transaction(2, 0, 1, "TestMessage");
 
             var (result, status) = await _sut.CreateTransaction(transaction);
-            Assert.That(result, Is.Null);
-            Assert.That(status, Is.EqualTo(TransactionStatus.BankAccount_Not_Found));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Null);
+                Assert.That(status, Is.EqualTo(TransactionStatus.BankAccount_Not_Found));
+            });
         }
 
         [Test]
@@ -112,8 +110,11 @@ namespace Infrastructure.Tests.Repositories
             var transaction = new Transaction(0, 2, 1, "TestMessage");
 
             var (result, status) = await _sut.CreateTransaction(transaction);
-            Assert.That(result, Is.Null);
-            Assert.That(status, Is.EqualTo(TransactionStatus.BankAccount_Not_Found));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Null);
+                Assert.That(status, Is.EqualTo(TransactionStatus.BankAccount_Not_Found));
+            });
         }
 
         [Test]
@@ -122,8 +123,11 @@ namespace Infrastructure.Tests.Repositories
             var transaction = new Transaction(1, 2, 100, "TestMessage");
 
             var (result, status) = await _sut.CreateTransaction(transaction);
-            Assert.That(result, Is.Null);
-            Assert.That(status, Is.EqualTo(TransactionStatus.Insufficient_Funds));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Null);
+                Assert.That(status, Is.EqualTo(TransactionStatus.Insufficient_Funds));
+            });
         }
 
         [Test]
@@ -132,8 +136,11 @@ namespace Infrastructure.Tests.Repositories
             var transaction = new Transaction(4, 5, 1, "TestMessage");
 
             var (result, status) = await _sut.CreateTransaction(transaction);
-            Assert.That(result, Is.TypeOf<Transaction>());
-            Assert.That(status, Is.EqualTo(TransactionStatus.Success));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.TypeOf<Transaction>());
+                Assert.That(status, Is.EqualTo(TransactionStatus.Success));
+            });
         }
 
         [Test]
@@ -204,7 +211,7 @@ namespace Infrastructure.Tests.Repositories
 
             //Assert
             Assert.That(result, Is.TypeOf<List<Transaction>>());
-            Assert.That(result.ToList().Count() == 1);
+            Assert.That(result.ToList(), Has.Count.EqualTo(1));
         }
     }
 }

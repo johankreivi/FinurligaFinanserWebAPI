@@ -201,7 +201,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             // Assert
             Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
             var objectResult = result.Result as ObjectResult;
-            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult, Is.Not.Null);
             Assert.That(objectResult.StatusCode, Is.EqualTo(500));
         }
 
@@ -219,9 +219,12 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             // Assert
             var okResult = result.Result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.That(okResult.StatusCode, Is.EqualTo(200));
-            Assert.IsInstanceOf<UserAccountConfirmationDTO>(okResult.Value);
+            Assert.That(okResult, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(okResult.StatusCode, Is.EqualTo(200));
+                Assert.That(okResult.Value, Is.InstanceOf<UserAccountConfirmationDTO>());
+            });
         }
 
         [Test]
@@ -235,7 +238,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             // Assert
             var notFoundResult = result.Result as NotFoundResult;
-            Assert.IsNotNull(notFoundResult);
+            Assert.That(notFoundResult, Is.Not.Null);
             Assert.That(notFoundResult.StatusCode, Is.EqualTo(404));
         }
 
@@ -250,7 +253,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             // Assert
             var objectResult = result.Result as ObjectResult;
-            Assert.IsNotNull(objectResult);
+            Assert.That(objectResult, Is.Not.Null);
             Assert.That(objectResult.StatusCode, Is.EqualTo(500));
         }
 
@@ -268,9 +271,12 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             // Assert
             var okResult = result.Result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.That(okResult.StatusCode, Is.EqualTo(200));
-            Assert.IsInstanceOf<UserAccountDetailsDTO>(okResult.Value);
+            Assert.That(okResult, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(okResult.StatusCode, Is.EqualTo(200));
+                Assert.That(okResult.Value, Is.InstanceOf<UserAccountDetailsDTO>());
+            });
         }
 
         [Test]
@@ -298,13 +304,15 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
 
             var okResult = result.Result as OkObjectResult;
 
+            Assert.That(okResult, Is.Not.Null);
             Assert.That(okResult.Value, Is.InstanceOf(typeof(UserAccountDetailsDTO)));
 
             var resultValue = (UserAccountDetailsDTO)okResult.Value;
 
+            Assert.That(resultValue, Is.Not.Null);
+
             Assert.Multiple(() =>
             {
-                Assert.That(resultValue, Is.Not.Null);
                 Assert.That(resultValue.Id, Is.EqualTo(userId));
                 Assert.That(resultValue.FirstName, Is.EqualTo(fakeUser.FirstName));
                 Assert.That(resultValue.LastName, Is.EqualTo(fakeUser.LastName));
@@ -325,6 +333,7 @@ namespace FinurligaFinanserWebAPI.Tests.Controllers
             Assert.That(result.Result, Is.InstanceOf(typeof(NotFoundObjectResult)));
 
             var notFoundResult = result.Result as NotFoundObjectResult;
+            Assert.That(notFoundResult, Is.Not.Null);
             Assert.That(notFoundResult.Value, Is.EqualTo("Hittade inget user account som matchade bankkontonumret"));
         }
     }
