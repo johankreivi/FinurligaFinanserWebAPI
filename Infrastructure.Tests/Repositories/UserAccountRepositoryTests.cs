@@ -62,8 +62,6 @@ namespace Infrastructure.Tests.Repositories
             Assert.That(result.Item2, Is.EqualTo(expectedValidationStatus));
         }
 
-       
-
         [Test]
         [TestCase("aaaaaaa", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // För kort
         [TestCase("aaaaaaaa", UserValidationStatus.NotValid_Password_Does_Not_Meet_Requirements)] // Tillräckligt långt, liten bokstav, men ingen stor bokstav, siffra eller specialtecken.

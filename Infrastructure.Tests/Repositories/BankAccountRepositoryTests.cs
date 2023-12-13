@@ -1,17 +1,12 @@
-﻿
-using Entity;
+﻿using Entity;
 using Infrastructure.Enums;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.EntityFrameworkCore;
 using NUnit.Framework.Internal;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System;
 
 namespace Infrastructure.Tests.Repositories
 {
@@ -21,8 +16,6 @@ namespace Infrastructure.Tests.Repositories
 
         private Mock<DataContext> _mockDataContext;
         private BankAccountRepository _sut;
-        private Mock<UserAccountRepository> _mockUserAccountRepository;
-        private Mock<ILogger<UserAccountRepository>> _logger;
         private List<UserAccount> _userAccounts;
         private List<BankAccount> _bankAccounts;
 
@@ -30,15 +23,11 @@ namespace Infrastructure.Tests.Repositories
         public void Setup()
         {
             _mockDataContext = new Mock<DataContext>();
-
-            _logger = new Mock<ILogger<UserAccountRepository>>();
             _userAccounts = SeedUserAccounts();
             _bankAccounts = SeedBankAccounts();
             _mockDataContext.Setup(x => x.UserAccounts).ReturnsDbSet(_userAccounts);
             _mockDataContext.Setup(x => x.BankAccounts).ReturnsDbSet(_bankAccounts);
-            _mockUserAccountRepository = new Mock<UserAccountRepository>(_mockDataContext.Object);
             _sut = new BankAccountRepository(_mockDataContext.Object);
-
         }
 
         private static List<UserAccount> SeedUserAccounts()
@@ -81,9 +70,12 @@ namespace Infrastructure.Tests.Repositories
             var (resultBankAccount, resultValidationStatus) = await _sut.CreateBankAccount(bankAccountName, userAccountId);
 
             // Assert
-            Assert.That(resultBankAccount, Has.Property("NameOfAccount").EqualTo(bankAccountName));
-            Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Valid));
-            Assert.That(resultBankAccount, Is.TypeOf<BankAccount>());
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultBankAccount, Has.Property("NameOfAccount").EqualTo(bankAccountName));
+                Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Valid));
+                Assert.That(resultBankAccount, Is.TypeOf<BankAccount>());
+            });
         }
 
         [Test]
@@ -97,9 +89,13 @@ namespace Infrastructure.Tests.Repositories
             var (resultBankAccount, resultValidationStatus) = await _sut.CreateBankAccount(bankAccountName, userAccountId);
 
             // Assert
-            Assert.That(resultBankAccount, Has.Property("AccountNumber").GreaterThan(0));
-            Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Valid));
-            Assert.That(resultBankAccount, Is.TypeOf<BankAccount>());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultBankAccount, Has.Property("AccountNumber").GreaterThan(0));
+                Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Valid));
+                Assert.That(resultBankAccount, Is.TypeOf<BankAccount>());
+            });
         }
 
         
@@ -120,8 +116,12 @@ namespace Infrastructure.Tests.Repositories
             var (resultBankAccount, resultValidationStatus) = await _sut.CreateBankAccount(bankAccountName, userAccountId);
 
             // Assert
-            Assert.That(resultBankAccount, Is.Null);
-            Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Invalid_BankAccountName));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultBankAccount, Is.Null);
+                Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Invalid_BankAccountName));
+            });
         }
 
         [Test]
@@ -136,8 +136,11 @@ namespace Infrastructure.Tests.Repositories
             var (resultBankAccount, resultValidationStatus) = await _sut.CreateBankAccount(bankAccountName, userAccountId);
 
             // Assert
-            Assert.That(resultBankAccount, Is.Null);
-            Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Invalid_UserAccountId));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultBankAccount, Is.Null);
+                Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Invalid_UserAccountId));
+            });
         }
 
         [Test]
@@ -151,8 +154,11 @@ namespace Infrastructure.Tests.Repositories
             var (resultBankAccount, resultValidationStatus) = await _sut.CreateBankAccount(bankAccountName, userAccountId);
 
             // Assert
-            Assert.That(resultBankAccount, Is.Null);
-            Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.NotFound));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultBankAccount, Is.Null);
+                Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.NotFound));
+            });
         }
 
         [Test]
@@ -165,8 +171,13 @@ namespace Infrastructure.Tests.Repositories
             var result = await _sut.GetAllBankAccounts(userAccountId);
 
             // Assert
-            Assert.That(result, Is.TypeOf<List<BankAccount>>());
-            Assert.That(result.ToList().Count() == 1);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.TypeOf<List<BankAccount>>());
+                Assert.That(result.ToList(), Has.Count.EqualTo(1));
+            });
         }
 
         [Test]
@@ -238,8 +249,11 @@ namespace Infrastructure.Tests.Repositories
 
 
             // Assert
-            Assert.That(resultBankAccount, Is.TypeOf<BankAccount>());
-            Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Valid));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultBankAccount, Is.TypeOf<BankAccount>());
+                Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Valid));
+            });
         }
 
         [Test]
@@ -252,8 +266,11 @@ namespace Infrastructure.Tests.Repositories
             var (resultBankAccount, resultValidationStatus) = await _sut.DeleteBankAccount(id);
 
             // Assert
-            Assert.That(resultBankAccount, Is.Null);
-            Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.NotFound));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultBankAccount, Is.Null);
+                Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.NotFound));
+            });
         }
 
         [Test]
@@ -262,7 +279,7 @@ namespace Infrastructure.Tests.Repositories
             // Arrange
             var id = 1;
             var bankaccount = _bankAccounts.Find(x => x.Id == id);
-            bankaccount.Balance = 100;
+            bankaccount!.Balance = 100;
 
             _mockDataContext.Setup(x => x.BankAccounts.FindAsync(id)).ReturnsAsync(bankaccount);
 
@@ -271,8 +288,11 @@ namespace Infrastructure.Tests.Repositories
             var (resultBankAccount, resultValidationStatus) = await _sut.DeleteBankAccount(id);
 
             // Assert
-            Assert.That(resultBankAccount, Is.Null);
-            Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Invalid_amount));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultBankAccount, Is.Null);
+                Assert.That(resultValidationStatus, Is.EqualTo(BankAccountValidationStatus.Invalid_amount));
+            });
         }
     }
 }

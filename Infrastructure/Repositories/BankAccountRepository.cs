@@ -39,7 +39,7 @@ namespace Infrastructure.Repositories
 
             if (bankAccount.Balance != 0) return (null, BankAccountValidationStatus.Invalid_amount);
 
-            var result = _dataContext.BankAccounts.Remove(bankAccount);
+            _dataContext.BankAccounts.Remove(bankAccount);
 
             await _dataContext.SaveChangesAsync();
             return (bankAccount, BankAccountValidationStatus.Valid);
@@ -48,7 +48,7 @@ namespace Infrastructure.Repositories
         public async Task<IEnumerable<BankAccount?>?> GetAllBankAccounts(int userAccountId)
         {
             var bankAccounts = await _dataContext.BankAccounts.Where(x => x.UserAccountId == userAccountId).ToListAsync();
-            if (bankAccounts.Count() == 0) return null;
+            if (bankAccounts.Count == 0) return null;
 
             return bankAccounts;
         }
