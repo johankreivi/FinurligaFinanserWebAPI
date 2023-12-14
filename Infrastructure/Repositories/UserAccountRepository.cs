@@ -9,7 +9,6 @@ namespace Infrastructure.Repositories
 {
     public partial class UserAccountRepository : IUserAccountRepository
     {
-        private readonly ILogger _logger;
         private readonly DataContext _dataContext;
         private const int USERNAME_MIN_LENGTH = 6;
 
@@ -18,10 +17,9 @@ namespace Infrastructure.Repositories
         [GeneratedRegex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d]).+$")]
         private static partial Regex PasswordIsValid();
 
-        public UserAccountRepository(DataContext dataContext, ILogger<UserAccountRepository> logger)
+        public UserAccountRepository(DataContext dataContext)
         {
             _dataContext = dataContext;
-            _logger = logger;
         }
 
         public async Task<List<UserAccount>> GetAllUserAccountsAsync(int take) 
@@ -131,9 +129,9 @@ namespace Infrastructure.Repositories
             return response;
         }
 
-        public async Task<int> GetUserAccountByBankAccountNumber(int bankAccountNumber)
+        public async Task<int> GetUserAccountByBankAccountNumber(int accountNumber)
         {
-                var bankAccount = await _dataContext.BankAccounts.FirstOrDefaultAsync(b => b.AccountNumber == bankAccountNumber);
+                var bankAccount = await _dataContext.BankAccounts.FirstOrDefaultAsync(b => b.AccountNumber == accountNumber);
                 
 
                 if (bankAccount == null)
