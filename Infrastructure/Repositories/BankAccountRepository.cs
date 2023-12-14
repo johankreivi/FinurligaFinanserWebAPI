@@ -66,7 +66,7 @@ namespace Infrastructure.Repositories
                 bankAccountNumber = BankAccountGenerator.Generate();
                 IsBankAccoutNumberTaken = _dataContext.BankAccounts.Any(ba => ba.AccountNumber == bankAccountNumber);
 
-            } while (IsBankAccoutNumberTaken == true);
+            } while (IsBankAccoutNumberTaken);
 
             return bankAccountNumber;
         }
