@@ -129,9 +129,9 @@ namespace Infrastructure.Repositories
             return response;
         }
 
-        public async Task<int> GetUserAccountByBankAccountNumber(int accountNumber)
+        public async Task<int> GetUserAccountByBankAccountNumber(int bankAccountNumber)
         {
-                var bankAccount = await _dataContext.BankAccounts.FirstOrDefaultAsync(b => b.AccountNumber == accountNumber);
+                var bankAccount = await _dataContext.BankAccounts.FirstOrDefaultAsync(b => b.AccountNumber == bankAccountNumber);
                 
 
                 if (bankAccount == null)
